@@ -3983,6 +3983,11 @@ void TokenAnnotator::walkLine1(AnnotatedLine& Line) {
             else if (MyToken->is(tok::arrow)) {
                 OriginalLineBreakWeight += 2;
             } 
+            // else if (!Line.endsWith(tok::semi) && Line.MightBeFunctionDecl && MyToken->isDatatype() &&
+            //     IsEnumScope == false) {
+            //     IsInFunctionDefinition = true;
+            //     IsFunctionDefinitionLine = true;
+            // }
             else if (!Line.endsWith(tok::semi) && Line.MightBeFunctionDecl && MyToken->isDatatype() &&
                 IsClassScope == false && IsStructScope == false && IsEnumScope == false &&
                 RbraceCount == LbraceCount && LbraceCount == 0) {
@@ -5343,6 +5348,8 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
     return true;
 
   if (Style.isCpp()) {
+    if (Left.is(tok::star) && Left.Previous && (Left.Previous->is(tok::arrow) || Left.Previous->is(tok::period)))
+        return false;
     if (Left.is(TT_OverloadedOperator) &&
         Right.isOneOf(TT_TemplateOpener, TT_TemplateCloser)) {
       return true;

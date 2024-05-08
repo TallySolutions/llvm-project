@@ -1280,11 +1280,11 @@ public:
               if (MyPrev->isDatatype()) {
                   prevOk = true;
               }
-              else if (MyPrev && (MyPrev->isDatatype() || MyPrev->isPointerOrRef())) {
+              else if (MyPrev->isPointerOrRef() && !(MyPrev->isOneOf(tok::arrowstar, tok::periodstar)) && !(MyPrev->Previous && MyPrev->Previous->isOneOf(tok::arrow, tok::period))) {
                   prevOk = true;
               }
               // TODO: condition might not be needed
-              else if (MyPrev && (MyPrev->is(tok::coloncolon) && MyNext && !MyNext->is(tok::semi)) && MyPrev->Previous && MyPrev->Previous->is(tok::identifier)) {
+              else if ((MyPrev->is(tok::coloncolon) && MyNext && !MyNext->is(tok::semi)) && MyPrev->Previous && MyPrev->Previous->is(tok::identifier)) {
                   prevOk = true;
               }
               else if (MyPrev->IsInterimBeforeName) {
