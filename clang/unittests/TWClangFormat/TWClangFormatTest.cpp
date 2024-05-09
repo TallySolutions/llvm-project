@@ -247,8 +247,8 @@ namespace {
                     "        const TUInt8        TW_OBJ_LADDER_FACTOR_BITS       {1 * 2};\r\n"
                     "        const TUInt8        TW_OBJ_LADDER_FACTOR_BITS       {1 << TW_OBJ_LADDER_SHIFT_RESOLVE};\r\n"
                     "\r\n"
-                    "    TWSEvent        event (iTWObjTypeID::DISKIO_SCRATCHPAD);\r\n"
-                    "    TWSEvent        event (iTWObjTypeID::UNKNOWN);\r\n"
+                    "    TWSEvent    event (iTWObjTypeID::DISKIO_SCRATCHPAD);\r\n"
+                    "    TWSEvent    event (iTWObjTypeID::UNKNOWN);\r\n"
                     "}",
             "void\r\n"
                     "SetContentState ()\r\n"

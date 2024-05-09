@@ -4130,10 +4130,11 @@ void TokenAnnotator::walkLine2(AnnotatedLine& Line) {
                         break;
                     }
 
-                    if (Next->is(tok::equal)) {
+                    if (Next->is(tok::equal) || Next->is(tok::l_brace)) {
+                    //if (Next->is(tok::equal)) {
                         // Check if this statement is a const variable declaration
                         const FormatToken * tmp = MyToken;
-                        while (tmp && tmp->isNot(tok::equal)) {
+                        while (tmp && (tmp->isNot(tok::equal) || tmp->is(tok::l_brace))) {
                             if (tmp->isOneOf(tok::kw_const, tok::kw_constexpr)) {
                                 // it is a declaration
                                 isDT = true;
