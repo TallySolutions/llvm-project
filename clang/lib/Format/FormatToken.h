@@ -1344,9 +1344,21 @@ public:
               if (MyPrev->isDatatype()) {
                   prevOk = true;
               }
-              else if (MyPrev->isPointerOrRef()) {
-                  const FormatToken* MyPrevPrev = MyPrev->getPreviousNonComment();
-                  if (MyPrevPrev && MyPrevPrev->isDatatype()) {
+              // else if (MyPrev->isPointerOrRef()) {
+              //     const FormatToken* MyPrevPrev = MyPrev->getPreviousNonComment();
+              //     if (MyPrevPrev && MyPrevPrev->isDatatype()) {
+              //         prevOk = true;
+              //     }
+              // }
+              else if (MyPrev->isPointerOrRef() && !(MyPrev->isOneOf(tok::arrowstar, tok::periodstar)) && !(MyPrev->Previous && MyPrev->Previous->isOneOf(tok::arrow, tok::period))) {
+                  prevOk = true;
+              }
+              else if (MyPrev->IsInterimBeforeName) {
+                  while (MyPrev && MyPrev->IsInterimBeforeName)
+                      MyPrev = MyPrev->getPreviousNonComment();
+
+                  // Also support pointer-to-pointer i.e. two or more levels of indirection. Suffices to stop after two-level checking.
+                  if (MyPrev && (MyPrev->isDatatype() || MyPrev->isPointerOrRef())) {
                       prevOk = true;
                   }
               }
