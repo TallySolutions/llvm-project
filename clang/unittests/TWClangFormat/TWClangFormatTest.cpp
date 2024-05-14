@@ -232,6 +232,23 @@ namespace {
 
     }
 
+    TEST_F(TWClangFormatTest, StaticMemberVariableDefinition) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("FILE *  TWDevLogDestination<eTWDevLogDestType::METRICS_FILE>::vMetricsFile = nullptr;\r\n"
+                    "int     MyClass::staticVar = 0;\r\n"
+                    "int *   werbv::sdfertyw                                                                                         {};\r\n"
+                    "char ** cvcv::scvb                                                                                              {};\r\n"
+                    "TCh     TWDevLogDestination<eTWDevLogDestType::METRICS_FILE>::vMetricsLogFileName[TWDEVSUPPORT_FILEPATH_SIZE] = {};",
+                    "FILE * TWDevLogDestination<eTWDevLogDestType::METRICS_FILE>::vMetricsFile   =  nullptr;\r\n"
+                    "        int       MyClass::staticVar = 0;\r\n"
+                    "int    *     werbv::sdfertyw  {};\r\n"
+                    "    char  * * cvcv::scvb    {};\r\n"
+                    "TCh  TWDevLogDestination<eTWDevLogDestType::METRICS_FILE>::vMetricsLogFileName[TWDEVSUPPORT_FILEPATH_SIZE]    =    {};",
+                    Style);
+    }
+
     TEST_F(TWClangFormatTest,VariableDeclarationAlignment) {
     
     FormatStyle Style = getTWStyle();
@@ -265,6 +282,32 @@ namespace {
                     "    TWSEvent        event (iTWObjTypeID::UNKNOWN);\r\n"
                     "}",
                     
+                    Style);
+
+        verifyFormat("void\r\n"
+                    "f ()\r\n"
+                    "{\r\n"
+                    "        vector<int>                 dfewoir;\r\n"
+                    "        vector<char *>              werio;\r\n"
+                    "        vector<char *, long long>   werio;\r\n"
+                    "        int *                       fgsdf;\r\n"
+                    "        char **                     sdfe;\r\n"
+                    "        float                       wer;\r\n"
+                    "\r\n"
+                    "    wer = 8;\r\n"
+                    "}",
+                    "void\r\n"
+                    "f ()\r\n"
+                    "{\r\n"
+                    "        vector<int>         dfewoir;\r\n"
+                    "     vector<char *>  werio;\r\n"
+                    "        vector<char *, long long>  werio;\r\n"
+                    "    int *           fgsdf;\r\n"
+                    "            char **         sdfe;\r\n"
+                    "    float           wer;\r\n"
+                    "\r\n"
+                    "        wer = 8;\r\n"
+                    "}",
                     Style);
     }
 

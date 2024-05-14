@@ -1365,6 +1365,12 @@ public:
           }
           const FormatToken* MyNext = getNextNonComment();
           if (MyNext) {
+              if (MyNext->is(tok::less)) {
+                  while (MyNext != nullptr && !MyNext->is(tok::greater)) {
+                      MyNext = MyNext->getNextNonComment();
+                  }
+                  MyNext = MyNext->getNextNonComment();
+              }
               if (MyNext->is(tok::coloncolon)) {
                   const FormatToken* MyNext2 = MyNext->getNextNonComment();
                   if (MyNext2) {

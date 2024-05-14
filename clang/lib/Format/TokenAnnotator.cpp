@@ -4085,7 +4085,8 @@ void TokenAnnotator::walkLine2(AnnotatedLine& Line) {
     MyToken = Line.First;
     if (MyToken) {
         for (MyToken = Line.First; MyToken != nullptr; MyToken = MyToken->Next) {
-            if (MyToken->IsInterimBeforeName || MyToken->IsRhsToken || MyToken->isNotScoped() || MyToken->isParenScoped() || MyToken->IsInTemplateLine)
+            // if (MyToken->IsInterimBeforeName || MyToken->IsRhsToken || MyToken->isNotScoped() || MyToken->isParenScoped() || MyToken->IsInTemplateLine)
+            if (MyToken->IsInterimBeforeName || MyToken->IsRhsToken || MyToken->isParenScoped() || MyToken->IsInTemplateLine)
                 // Basically a template type, then move to next token.
                 continue;
 
@@ -4156,6 +4157,30 @@ void TokenAnnotator::walkLine2(AnnotatedLine& Line) {
                         MyToken->IsDatatype = true;
                         Next = Next->Next;
                     }
+
+
+                    int templatebrace_count = 0;
+                    FormatToken* cur_tok = MyToken;
+                    do {
+                        cur_tok = cur_tok->getNextNonCommentNonConst();
+
+                        if (!cur_tok) {
+                            break;
+                        }
+
+                        if (cur_tok->is(tok::less)) 
+                            ++templatebrace_count;
+
+                        if(templatebrace_count)
+                            cur_tok->IsInterimBeforeName = true;
+                    
+                        if (cur_tok->is(tok::greater))
+                            --templatebrace_count;
+
+                    } while (templatebrace_count);
+                
+
+
                 }
                 if (Next == nullptr)
                     break;
