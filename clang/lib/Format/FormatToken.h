@@ -869,7 +869,7 @@ public:
       if (next && next->is(tok::l_square)) {
 
         next = next->getNextNonComment();
-        if (next && (next->TokenText.startswith ("nodiscard") || next->TokenText.startswith ("noreturn"))) {
+        if (next && (next->TokenText.startswith ("nodiscard") || next->TokenText.startswith ("noreturn") || next->TokenText.startswith ("maybe_unused"))) {
 
           next = next->getNextNonComment();
           if (next && next->is(tok::r_square)) {

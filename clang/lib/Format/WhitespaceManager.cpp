@@ -1456,10 +1456,12 @@ void WhitespaceManager::columnarizeDatatypeTokens() {
         bool functionNameAfterInterims = MyTok->isFunctionNameAfterInterims();
         bool memVarNameAfterInterims = MyTok->isMemberVariableNameAfterInterims();
 
-        bool ismaybeunused = (MyTok->Previous && MyTok->Previous->Previous && MyTok->Previous->Previous->isMaybeUnused() && MyLine->First == MyTok->Previous->Previous);
+        //bool ismaybeunused = (MyTok->Previous && MyTok->Previous->Previous && MyTok->Previous->Previous->isMaybeUnused() && MyLine->First == MyTok->Previous->Previous);
 
-      if (functionNameAfterInterims || memVarNameAfterInterims || ismaybeunused) {
-          int j = ismaybeunused ? i - 2 : i;
+      //if (functionNameAfterInterims || memVarNameAfterInterims || ismaybeunused) {
+      if (functionNameAfterInterims || memVarNameAfterInterims) {
+          //int j = ismaybeunused ? i - 2 : i;
+          int j = i;
 
           size_t tokSize = ((StringRef)MyTok->TokenText).size();
 
@@ -1474,16 +1476,17 @@ void WhitespaceManager::columnarizeDatatypeTokens() {
           NextTok = NextTok->getNextNonCommentNonConst();
         }
 
-        if (ismaybeunused) {
-          NextTok = NextTok->getNextNonCommentNonConst ();
-          if (NextTok) {
-            NextTok = NextTok->getNextNonCommentNonConst();
-            NextTok->PrevTokenSizeForColumnarization = tokSize;
-            NextTok->IsDatatype = true;
-          }
-        }
+        // if (ismaybeunused) {
+        //   NextTok = NextTok->getNextNonCommentNonConst ();
+        //   if (NextTok) {
+        //     NextTok = NextTok->getNextNonCommentNonConst();
+        //     NextTok->PrevTokenSizeForColumnarization = tokSize;
+        //     NextTok->IsDatatype = true;
+        //   }
+        // }
 
-        tokSize = ismaybeunused ? 4 + tokSize : interimSize + tokSize;
+        // tokSize = ismaybeunused ? 4 + tokSize : interimSize + tokSize;
+        tokSize = interimSize + tokSize;
 
         if (NextTok) {
 
@@ -1496,7 +1499,8 @@ void WhitespaceManager::columnarizeDatatypeTokens() {
 
         MaxDatatypeLen = MaxDatatypeLen < tokSize ? tokSize : MaxDatatypeLen;
 
-        if (MyLine->LastSpecifierTabs == 0 || MyLine->First->isMaybeUnused()) {
+        //if (MyLine->LastSpecifierTabs == 0 || MyLine->First->isMaybeUnused()) {
+        if (MyLine->LastSpecifierTabs == 0) {
 
           Changes[j].Spaces = MaxSpecifierTabs * Style.TabWidth;
           MyLine->LastSpecifierTabs = MaxSpecifierTabs;

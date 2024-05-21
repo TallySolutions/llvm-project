@@ -565,6 +565,104 @@ namespace {
                     Style);
         }
 
+    TEST_F(TWClangFormatTest, MaybeUnused) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("bool\r\n"
+                    "TWDevConfigLexer::PrintError ([[maybe_unused]] const CharType * pFmt, [[maybe_unused]] TArgs... pArgs) noexcept\r\n"
+                    "{\r\n"
+                    "        TRACEFUNC;\r\n"
+                    "\r\n"
+                    "    INTERNAL_TRACE_LOG_FILE_LOC (vFileName, vLineNumber, pFmt, pArgs...);\r\n"
+                    "    return false;        // error always return false\r\n"
+                    "}",
+                    "bool\r\n"
+                    "TWDevConfigLexer::PrintError ([[maybe_unused]]  const   CharType * pFmt,    [[maybe_unused]]    TArgs...    pArgs) noexcept\r\n"
+                    "{\r\n"
+                    "            TRACEFUNC;\r\n"
+                    "\r\n"
+                    "INTERNAL_TRACE_LOG_FILE_LOC (vFileName, vLineNumber, pFmt, pArgs...);\r\n"
+                    "        return false;        // error always return false\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("bool\r\n"
+                    "TWOSInternalSocketFDWatcher::StartWatchingNWIOHandle (SOCKET_FD pSocketFD, eTWSockFDWatchOptions::Enum pMode) noexcept\r\n"
+                    "{\r\n"
+                    "        TRACEFUNC;\r\n"
+                    "\r\n"
+                    "        [[maybe_unused]]\r\n"
+                    "        TInt64  mode;\r\n"
+                    "        [[maybe_unused]]\r\n"
+                    "        TInt64  error_code;\r\n"
+                    "        TInt64  flags;\r\n"
+                    "\r\n"
+                    "    flags = EV_ENABLE | EV_ADD;\r\n"
+                    "}",
+                    "bool\r\n"
+                    "TWOSInternalSocketFDWatcher::StartWatchingNWIOHandle (SOCKET_FD pSocketFD, eTWSockFDWatchOptions::Enum pMode) noexcept\r\n"
+                    "{\r\n"
+                    "        TRACEFUNC;\r\n"
+                    "\r\n"
+                    "                [[maybe_unused]]\r\n"
+                    "    TInt64              mode;\r\n"
+                    "            [[maybe_unused]]\r\n"
+                    "TInt64                  error_code;\r\n"
+                    "    TInt64  flags;\r\n"
+                    "\r\n"
+                    "            flags = EV_ENABLE | EV_ADD;\r\n"
+                    "\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("class TWThreadMgr TWCLASS_MAKE_FINAL {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "                [[nodiscard]]\r\n"
+                    "static          TWThreadExitFunc    SetExitThreadFunc           (TWThreadExitFunc pExitThreadFunc) noexcept;\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "                [[noreturn]]\r\n"
+                    "static          void                PrivateExitThread           () noexcept;\r\n"
+                    "\r\n"
+                    "                [[noreturn]]\r\n"
+                    "static          void                PrivateDefaultExitProcess   () noexcept;\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "                [[maybe_unused]]\r\n"
+                    "static          TInt32              sExitValue;        // this is only used in Linux Kernel, unused in Windows\r\n"
+                    "\r\n"
+                    "static          TWThreadExitFunc    sExitThreadFunc;\r\n"
+                    "};",
+                    "class TWThreadMgr TWCLASS_MAKE_FINAL {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "            [[nodiscard]]\r\n"
+                    "        static          TWThreadExitFunc    SetExitThreadFunc           (TWThreadExitFunc pExitThreadFunc) noexcept;\r\n"
+                    "\r\n"
+                    "private:\r\n"
+                    "\r\n"
+                    "                    [[noreturn]]\r\n"
+                    "    static                  void                    PrivateExitThread           () noexcept;\r\n"
+                    "\r\n"
+                    "                        [[noreturn]]\r\n"
+                    "            static  void                PrivateDefaultExitProcess   () noexcept;\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "                        [[maybe_unused]]\r\n"
+                    "        static  TInt32      sExitValue;        // this is only used in Linux Kernel, unused in Windows\r\n"
+                    "\r\n"
+                    "static          TWThreadExitFunc            sExitThreadFunc;\r\n"
+                    "};",
+                    Style);
+    }
+
 } // namespace
 } // namespace test
 } // namespace format

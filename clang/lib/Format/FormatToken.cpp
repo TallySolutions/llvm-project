@@ -109,7 +109,8 @@ bool FormatToken::isAfterNoDiscardOrNoReturnOrTemplate(unsigned & newlinescount)
   if ( this->is(tok::r_square) && 
       (this->Previous && this->Previous->is (tok::r_square)) && 
       ((this->Previous->Previous && this->Previous->Previous->TokenText.startswith ("nodiscard")) ||
-       (this->Previous->Previous && this->Previous->Previous->TokenText.startswith ("noreturn"))) && 
+       (this->Previous->Previous && this->Previous->Previous->TokenText.startswith ("noreturn"))  ||
+       (this->Previous->Previous && this->Previous->Previous->TokenText.startswith ("maybe_unused")) ) && 
       (this->Previous->Previous->Previous && this->Previous->Previous->Previous->is (tok::l_square)) && 
       (this->Previous->Previous->Previous->Previous && this->Previous->Previous->Previous->Previous->is (tok::l_square)) 
      ) {
