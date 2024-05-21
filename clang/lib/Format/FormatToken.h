@@ -1366,12 +1366,13 @@ public:
           const FormatToken* MyNext = getNextNonComment();
           if (MyNext) {
               if (MyNext->is(tok::less)) {
-                  while (MyNext != nullptr && !MyNext->is(tok::greater)) {
+                  while (MyNext && !MyNext->is(tok::greater)) {
                       MyNext = MyNext->getNextNonComment();
                   }
-                  MyNext = MyNext->getNextNonComment();
+                  if (MyNext)
+                    MyNext = MyNext->getNextNonComment();
               }
-              if (MyNext->is(tok::coloncolon)) {
+              if (MyNext && MyNext->is(tok::coloncolon)) {
                   const FormatToken* MyNext2 = MyNext->getNextNonComment();
                   if (MyNext2) {
                       const FormatToken* MyNext3 = MyNext2->getNextNonComment();

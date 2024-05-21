@@ -514,14 +514,25 @@ static bool MissingNotBraces(StringRef BufStr) {
 
     // ignore anything in single or double quotes
     // if single-quote, double quote and braces are inside single or double quote then move forward
-    if ((ch == single && (data[idx + 2] == single))
-        || (ch == doustr && (data[idx + 2] == doustr))) {
-        idx += 3;
-        if (data[idx] == single || data[idx] == doustr)
-            ++idx;
-        continue;
-    } else if (ch == single && data[idx + 1] == '\\' && data[idx + 2] == doustr && data[idx + 3] == single) {
+    //if ((ch == single && (data[idx + 2] == single))
+    //    || (ch == doustr && (data[idx + 2] == doustr))) {
+    //    idx += 3;
+    //    if (data[idx] == single || data[idx] == doustr)
+    //        ++idx;
+    //    continue;
+    //} else if (ch == single && data[idx + 1] == '\\' && data[idx + 2] == doustr && data[idx + 3] == single) {
+    //    idx += 4;
+    //    continue;
+    //}
+
+    // escape characters between single quotes
+    if (ch == single && data[idx + 1] == '\\' && data[idx + 3] == single) {
         idx += 4;
+        continue;
+    }
+    // normal characters between single quotes
+    if (ch == single && (data[idx + 2] == single)) {
+        idx += 3;
         continue;
     }
 
@@ -529,18 +540,29 @@ static bool MissingNotBraces(StringRef BufStr) {
     if (ch == doustr) {
             char pch;
 
+        int fff=idx;
       ++idx;
+      // while (data[idx] != doustr) {
+      //   pch = data[idx];
+      //   ++idx;
+      //   if (pch == '\\' && data[idx] == doustr)
+      //       ++idx;
+      // 
+      //   continue;
+      // }
       while (data[idx] != doustr) {
         pch = data[idx];
-        ++idx;
-        if (pch == '\\' && data[idx] == doustr)
+        if (pch =='\\')
+            idx+=2;
+        else
             ++idx;
-
         continue;
       }
       ++idx;
       continue;
     }
+
+    
 
     // template support to be added
     if ((ch == l_curly || ch == l_square || ch == l_curve)) { //  TODO: || ch == l_angle
