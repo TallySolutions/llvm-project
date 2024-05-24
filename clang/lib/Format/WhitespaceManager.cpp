@@ -106,6 +106,7 @@ const tooling::Replacements &WhitespaceManager::generateReplacements() {
 
   llvm::sort(Changes, Change::IsBeforeInFile(SourceMgr));
   calculateLineBreakInformation();
+  addlineaftercomment();
   columnarizeKeywords();                                // TALLY
   columnarizeDeclarationSpecifierTokens();              // TALLY
   columnarizeDatatypeTokens();                          // TALLY
@@ -2449,6 +2450,26 @@ void WhitespaceManager::alignEscapedNewlines(unsigned Start, unsigned End,
         C.EscapedNewlineColumn = Column;
     }
   }
+}
+
+void WhitespaceManager::addlineaftercomment() {
+    for (int i = 0; i < Changes.size(); ++i) {
+
+        const FormatToken * tok = Changes[i].Tok;
+
+        if (!(Changes[i].IsTrailingComment and Changes[i].Tok == Changes[i].Tok->MyLine->First)) {
+            continue;
+        }
+
+        int j = i+1;
+        while (j < Changes.size() and (Changes[j].IsTrailingComment or Changes[j].IsInsideToken)) {
+            j++;
+        }
+
+        if (j < Changes.size())
+            Changes[j].NewlinesBefore = 2;
+        i=j;
+    }
 }
 
 void WhitespaceManager::alignArrayInitializers() {

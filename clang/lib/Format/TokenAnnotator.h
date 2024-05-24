@@ -347,6 +347,9 @@ private:
   void walkLine2(AnnotatedLine &Line);
 
   // TALLY
+  bool CheckIfDatatype (FormatToken* token);
+
+  // TALLY
   bool isFunctionLocalVariableDeclaration(const FormatToken * pTkn, const FormatToken * pNxt);
 
   // TALLY

@@ -289,6 +289,8 @@ private:
   /// Align trailing comments over all \c Changes.
   void alignTrailingComments();
 
+  void addlineaftercomment();
+
   /// Align trailing comments from change \p Start to change \p End at
   /// the specified \p Column.
   void alignTrailingComments(unsigned Start, unsigned End, unsigned Column);

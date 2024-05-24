@@ -3450,10 +3450,11 @@ void TokenAnnotator::setCommentLineLevels(
       // Align comments for preprocessor lines with the # in column 0 if
       // preprocessor lines are not indented. Otherwise, align with the next
       // line.
-      Line->Level = Style.IndentPPDirectives != FormatStyle::PPDIS_BeforeHash &&
-                            PPDirectiveOrImportStmt
-                        ? 0
-                        : NextNonCommentLine->Level;
+      //Line->Level = Style.IndentPPDirectives != FormatStyle::PPDIS_BeforeHash &&
+      //                      PPDirectiveOrImportStmt
+      //                  ? 0
+      //                  : NextNonCommentLine->Level;
+      ;
     } else {
       NextNonCommentLine = Line->First->isNot(tok::r_brace) ? Line : nullptr;
     }
@@ -4051,6 +4052,97 @@ void TokenAnnotator::walkLine1(AnnotatedLine& Line) {
     }
 }
 
+// TALLY: check if token is datatype
+bool TokenAnnotator::CheckIfDatatype (FormatToken* token) {
+    const FormatToken * Next = token;
+    bool isDT = false;
+    int j=0;
+    bool has_const = false;
+
+    if (!token->HasSemiColonInLine) 
+        return false;
+
+    while (Next != nullptr && Next->isNot (tok::semi)) {
+
+        /*
+        * if token is DeclarationSpecifier or star
+        * then skip it
+        */
+        if (Next->isDeclarationSpecifier() || Next->is(tok::star)) {
+            has_const = true;
+            Next = Next->Next;
+            continue;
+        }
+
+        /*
+        * if not identifier or simple datatype
+        * then return false
+        * e.g. 
+        *   skip if, else, while, do, switch etc.
+        */
+        if (!Next->isDatatypeInner())
+            break;
+
+        Next = Next->Next;
+        while (Next) {
+
+
+            /*
+            * if DatatypeInner is followed by '::' or '<...>'
+            * then consider it a part of datatype
+            * e.g.
+            *   a::b c;
+            *   a::b::c<int> d;
+            *   vector<vector<int>> a;
+            *  
+            * otherwise DatatypeInner has ended.
+            * so move to next token
+            */
+            if (Next->is(tok::less)) {
+                Next = Next->Next;
+                int less_counter = 1;
+                while (Next && Next->isNot (tok::semi)) {
+                    if (Next->is(tok::less))
+                        less_counter++;
+
+                    if (Next->is(tok::greater))
+                        less_counter--;
+
+                    if (less_counter == 0) {
+                        break;
+                    }
+                    Next = Next->Next;
+                }
+            }
+            else if (Next->is(tok::coloncolon)) {
+                Next = Next->Next;
+            }
+            else {
+                break;
+            }
+            Next = Next->Next;
+        }
+
+        j++;
+
+        /*
+        * if two DatatypeInner are present
+        * and next token is '(' or '[' or ';'
+        * then return true;
+        * 
+        * if const present
+        * then return true even for '=' or '{'.
+        */
+        if (j == 2) {
+            if (has_const or Next->is(tok::l_paren) or Next->is(tok::semi) or Next->is(tok::l_square) or Next->is(tok::colon))
+                isDT=true;
+            break;
+        }
+    }
+
+    return isDT;
+}
+
 // TALLY: Walk the line in forward direction
 void TokenAnnotator::walkLine2(AnnotatedLine& Line) {
 
@@ -4090,65 +4182,86 @@ void TokenAnnotator::walkLine2(AnnotatedLine& Line) {
                 // Basically a template type, then move to next token.
                 continue;
 
+
+
             // In Function Definition Block
             if (MyToken->IsInFunctionDefinitionScope) {
                 //const FormatToken * Prev = MyToken->getPreviousNonComment();
                 const FormatToken * Next = MyToken;
                 bool isDT = true;
 
-                while (Next != nullptr && Next->isNot (tok::semi)) {
-                    if (Next->is(tok::less)) { // this might be template variable declaration
-                        Next = Next->Next;
-                        isDT = false;
-                        while (Next != nullptr && Next->isNot (tok::semi)) {
-                            if (Next->is(tok::greater)) {
-                                // Possible a data type
-                                isDT = true;
-                            }
-                            else if (Next->is(tok::r_paren) && isDT) {
-                                // Handling case like tempalte function invocation, say SomeFun<RetType>();
-                                isDT = false;
-                            }
-                            Next = Next->Next;
-                        }
-                        if (!isDT && (Next != nullptr && Next->is (tok::semi))) {
-                            // not a data type
-                            Next = nullptr;
-                            break;
-                        }
-                        else
-                            break;
-                    }
-                    if (Next->isOneOf(tok::l_paren, tok::r_paren, tok::less, tok::lessless, tok::lesslessequal,
-                                      tok::greater, tok::greatergreater, tok::greatergreaterequal, tok::kw_return,
-                                      tok::period, tok::periodstar, tok::arrow, tok::arrowstar, tok::kw_goto,
-                                      tok::pipe, tok::pipeequal,tok::pipepipe, tok::caret, tok::caretequal,
-                                      tok::ampamp, tok::ampequal, tok::starequal, tok::plusequal, tok::plusplus,
-                                      tok::minusequal, tok::minusminus, tok::percentequal, tok::slashequal,
-                                      tok::kw_continue, tok::kw_break)) {
-                        isDT = false;
-                        Next = nullptr;
-                        break;
-                    }
+                // while (Next != nullptr && Next->isNot (tok::semi)) {
+                //     if (Next->is(tok::less)) { // this might be template variable declaration
+                //         Next = Next->Next;
+                //         isDT = false;
+                //         while (Next != nullptr && Next->isNot (tok::semi)) {
+                //             if (Next->is(tok::greater)) {
+                //                 // Possible a data type
+                //                 isDT = true;
+                //             }
+                //             else if (Next->is(tok::r_paren) && isDT) {
+                //                 // Handling case like tempalte function invocation, say SomeFun<RetType>();
+                //                 isDT = false;
+                //             }
+                //             Next = Next->Next;
+                //         }
+                //         if (!isDT && (Next != nullptr && Next->is (tok::semi))) {
+                //             // not a data type
+                //             Next = nullptr;
+                //             break;
+                //         }
+                //         else
+                //             break;
+                //     }
+                // 
+                //     // is(tok::identifier)
+                // 
+                //     //if (Next->is(tok::l_paren)) {
+                //     //    int lparen_count = 1;
+                //     //    while (Next != nullptr && lparen_count>0) {
+                //     //        if (Next->is(tok::l_paren)) {
+                //     //            lparen_count++;
+                //     //        }
+                //     //        else if (Next->is(tok::r_paren)) {
+                //     //            // Handling case like tempalte function invocation, say SomeFun<RetType>();
+                //     //            isDT = false;
+                //     //        }
+                //     //        Next = Next->Next;
+                //     //    }
+                //     //}
+                // 
+                //     if (Next->isOneOf(tok::l_paren, tok::r_paren, tok::less, tok::lessless, tok::lesslessequal,
+                //                       tok::greater, tok::greatergreater, tok::greatergreaterequal, tok::kw_return,
+                //                       tok::period, tok::periodstar, tok::arrow, tok::arrowstar, tok::kw_goto,
+                //                       tok::pipe, tok::pipeequal,tok::pipepipe, tok::caret, tok::caretequal,
+                //                       tok::ampamp, tok::ampequal, tok::starequal, tok::plusequal, tok::plusplus,
+                //                       tok::minusequal, tok::minusminus, tok::percentequal, tok::slashequal,
+                //                       tok::kw_continue, tok::kw_break)) {
+                //         isDT = false;
+                //         Next = nullptr;
+                //         break;
+                //     }
+                // 
+                //     if (Next->is(tok::equal) || Next->is(tok::l_brace)) {
+                //     //if (Next->is(tok::equal)) {
+                //         // Check if this statement is a const variable declaration
+                //         const FormatToken * tmp = MyToken;
+                //         while (tmp && (tmp->isNot(tok::equal) || tmp->is(tok::l_brace))) {
+                //             if (tmp->isOneOf(tok::kw_const, tok::kw_constexpr)) {
+                //                 // it is a declaration
+                //                 isDT = true;
+                //                 break;
+                //             }
+                //             isDT = false;
+                //             tmp = tmp->Next;
+                //         }
+                //         Next = nullptr; // we need no more iteration on token in this statement
+                //         break;
+                //     }
+                //     Next = Next->Next;
+                // }
 
-                    if (Next->is(tok::equal) || Next->is(tok::l_brace)) {
-                    //if (Next->is(tok::equal)) {
-                        // Check if this statement is a const variable declaration
-                        const FormatToken * tmp = MyToken;
-                        while (tmp && (tmp->isNot(tok::equal) || tmp->is(tok::l_brace))) {
-                            if (tmp->isOneOf(tok::kw_const, tok::kw_constexpr)) {
-                                // it is a declaration
-                                isDT = true;
-                                break;
-                            }
-                            isDT = false;
-                            tmp = tmp->Next;
-                        }
-                        Next = nullptr; // we need no more iteration on token in this statement
-                        break;
-                    }
-                    Next = Next->Next;
-                }
+                isDT =  CheckIfDatatype (MyToken);
 
                 if (isDT) {
                     Next = MyToken->isNot(tok::l_brace) ? MyToken : MyToken->getNextNonComment();
@@ -4161,8 +4274,13 @@ void TokenAnnotator::walkLine2(AnnotatedLine& Line) {
 
                     int templatebrace_count = 0;
                     FormatToken* cur_tok = MyToken;
+                    cur_tok = cur_tok->Next;
+
+                    while (cur_tok->is(tok::coloncolon)) {
+                        cur_tok = cur_tok->Next->Next;
+                    }
+
                     do {
-                        cur_tok = cur_tok->getNextNonCommentNonConst();
 
                         if (!cur_tok) {
                             break;
@@ -4177,6 +4295,7 @@ void TokenAnnotator::walkLine2(AnnotatedLine& Line) {
                         if (cur_tok->is(tok::greater))
                             --templatebrace_count;
 
+                        cur_tok = cur_tok->getNextNonCommentNonConst();
                     } while (templatebrace_count);
                 
 
