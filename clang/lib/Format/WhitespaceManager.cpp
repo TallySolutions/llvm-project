@@ -106,7 +106,7 @@ const tooling::Replacements &WhitespaceManager::generateReplacements() {
 
   llvm::sort(Changes, Change::IsBeforeInFile(SourceMgr));
   calculateLineBreakInformation();
-  addlineaftercomment();
+  addlineaftercomment();                                // TALLY
   columnarizeKeywords();                                // TALLY
   columnarizeDeclarationSpecifierTokens();              // TALLY
   columnarizeDatatypeTokens();                          // TALLY
@@ -1553,6 +1553,8 @@ void WhitespaceManager::columnarizeNoDiscardOrNoReturnOrTemplate() {
     if ((!(MyTok->IsClassScope || MyTok->IsStructScope)) || MyTok->LbraceCount == 0 || MyTok->LparenCount > 0)
       continue;
 
+    if (MyTok->LbraceCount - MyTok->RbraceCount > 1) continue;
+
     if (MyTok->isNoDiscardOrNoReturnOrTemplate()) {
 
       if (MyTok->is(tok::l_square)) {
@@ -1625,6 +1627,7 @@ void WhitespaceManager::columnarizeNoDiscardOrNoReturnOrTemplate() {
 
             curr = curr->getNextNonComment();
             ++i;
+            spacecount = Changes[i].Spaces;
 
             if (!curr)
                 break;
@@ -2456,18 +2459,31 @@ void WhitespaceManager::addlineaftercomment() {
     for (int i = 0; i < Changes.size(); ++i) {
 
         const FormatToken * tok = Changes[i].Tok;
+        bool is_doxygen_comment = false;
 
         if (!(Changes[i].IsTrailingComment and Changes[i].Tok == Changes[i].Tok->MyLine->First)) {
             continue;
         }
 
+        if (Changes[i].Tok->TokenText[0] == '/' && Changes[i].Tok->TokenText[1] == '*' && Changes[i].Tok->TokenText[2] == '*') {
+            is_doxygen_comment = true;
+        }
+
         int j = i+1;
-        while (j < Changes.size() and (Changes[j].IsTrailingComment or Changes[j].IsInsideToken)) {
+        while (j < Changes.size() and (Changes[j].IsTrailingComment or Changes[j].IsInsideToken) and Changes[j].NewlinesBefore<2) {
             j++;
         }
 
-        if (j < Changes.size())
+        //if (j < Changes.size() && Changes[j].Tok->is(tok::kw_template)) {
+        //
+        //}
+
+        if (j < Changes.size()) {
             Changes[j].NewlinesBefore = 2;
+            if (is_doxygen_comment)
+                Changes[j].NewlinesBefore = 1;
+        }
+            
         i=j;
     }
 }

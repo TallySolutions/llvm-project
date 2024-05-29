@@ -6091,7 +6091,8 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
       return true;
     }
 
-  } else if (Style.isJavaScript()) {
+  } 
+  else if (Style.isJavaScript()) {
     // FIXME: This might apply to other languages and token kinds.
     if (Right.is(tok::string_literal) && Left.is(tok::plus) && Left.Previous &&
         Left.Previous->is(tok::string_literal)) {
@@ -6145,12 +6146,14 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
               Style.AllowShortFunctionsOnASingleLine &
                   FormatStyle::SFS_InlineOnly);
     }
-  } else if (Style.Language == FormatStyle::LK_Java) {
+  } 
+  else if (Style.Language == FormatStyle::LK_Java) {
     if (Right.is(tok::plus) && Left.is(tok::string_literal) && Right.Next &&
         Right.Next->is(tok::string_literal)) {
       return true;
     }
-  } else if (Style.isVerilog()) {
+  } 
+  else if (Style.isVerilog()) {
     // Break between assignments.
     if (Left.is(TT_VerilogAssignComma))
       return true;
@@ -6170,7 +6173,8 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
     // it is hard to identify them in UnwrappedLineParser.
     if (!Keywords.isVerilogBegin(Right) && Keywords.isVerilogEndOfLabel(Left))
       return true;
-  } else if (Style.BreakAdjacentStringLiterals &&
+  } 
+  else if (Style.BreakAdjacentStringLiterals &&
              (Style.isCpp() || Style.isProto() ||
               Style.Language == FormatStyle::LK_TableGen)) {
     if (Left.isStringLiteral() && Right.isStringLiteral())
@@ -6228,6 +6232,17 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
                                BeforeClosingBrace->isTrailingComment())) {
       return true;
     }
+  }
+
+  /*
+  * Don't join lines if parameters are multiline
+  * e.g.
+  * f (a,
+  *    b,
+  *    c);
+  */
+  if (Right.NewlinesBefore >= 1 && Right.HasUnescapedNewline && Right.Previous && Right.Previous->is(tok::comma)) {
+      return true;
   }
 
   if (Right.is(tok::comment)) {

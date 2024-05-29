@@ -78,6 +78,7 @@ namespace {
                     "int arr[5] = { 10,20,  30,40, 50  };",
                     Style);
     }
+
     TEST_F(TWClangFormatTest, SwitchCase) {
     
     FormatStyle Style = getTWStyle();
@@ -123,76 +124,6 @@ namespace {
 
         verifyFormat("TChar8 *    GetTitle ();",
                     "TChar8* GetTitle ();",
-                    Style);
-    }
-
-    TEST_F(TWClangFormatTest, ArrowOperator) {
-    
-    FormatStyle Style = getTWStyle();
-
-        verifyFormat("void\r\n"
-                    "func ()\r\n"
-                    "{\r\n"
-                    "        TUInt32     nextid;\r\n"
-                    "        TWSMustLock portelemslock (portelem->uSyncFlag[ipprotocol.IntVal ()][transportprotocol.IntVal ()], eTWSyncType::EXCLUSIVE);\r\n"
-                    "\r\n"
-                    "    sBaseClientEngine->GetSimpleDUID (pDUID, eTWBaseDCType::REPORT_DC, eTWAppDCType::UNKNOWN, nextid);\r\n"
-                    "    (((ClassName *) this)->*pResolveQueryFunc) (parms);\r\n"
-                    "    ((TWNWIOHandle *) eventqueue[idx].data.ptr)->OnSocketCanReadWithoutBlocking ();\r\n"
-                    "    CHECKTRUE (pQty->PrivateIsRepeat ());\r\n"
-                    "}",
-                    "void\r\n"
-                    "func ()\r\n"
-                    "{\r\n"
-                    "        TUInt32 nextid;\r\n"
-                    "    TWSMustLock     portelemslock (portelem ->  uSyncFlag[ipprotocol.IntVal ()][transportprotocol.IntVal ()],       eTWSyncType::EXCLUSIVE);\r\n"
-                    "\r\n"
-                    "            sBaseClientEngine   ->      GetSimpleDUID (pDUID, eTWBaseDCType::REPORT_DC, eTWAppDCType::UNKNOWN, nextid);\r\n"
-                    "        (((ClassName *  ) this    )-> *   pResolveQueryFunc) (parms);\r\n"
-                    "    ((TWNWIOHandle      *) eventqueue[idx].data.ptr)->      OnSocketCanReadWithoutBlocking ();\r\n"
-                    "            CHECKTRUE ( pQty->       PrivateIsRepeat ());\r\n"
-                    "}",
-                    Style);
-
-        verifyFormat("DCType *\r\n"
-                    "TWBaseClientEngine::InitializeTWReportDC (TWDUID & pDUID, TWSHeldElems & pHeldElems) noexcept\r\n"
-                    "{\r\n"
-                    "        TRACEFUNC;\r\n"
-                    "\r\n"
-                    "        TWSObject   dcdefinition;\r\n"
-                    "\r\n"
-                    "    vVersion   = parms->uPreviousStage.uRequestContext.GetContentValue<TUInt64> (iTWFieldID::RESOLVED_VERSION);\r\n"
-                    "    rangetondx = rangedata->GetContentValue<TUInt32> (nullptr, iTWFieldID::RANGE_TO);\r\n"
-                    "    rc         = TWDITPacket::RemoveSimpleDIT (pPacket->GetTWNPBasePacketHeader (), pPacket->uNumDITBlocks);\r\n"
-                    "    parentref  = pInstructionSet->at (instruction->uParentIDx)->uElementRef;\r\n"
-                    "\r\n"
-                    "    if (TWUtils::IsMultipleOf64 (pPacket->uDataLen)) [[likely]] {\r\n"
-                    "\r\n"
-                    "        obj.GetDCObjectElemPtr ()->MoveToLRU (pLRUPriority);\r\n"
-                    "    }\r\n"
-                    "\r\n"
-                    "    return sBaseClientEngine->InitializeSimpleDC<DCType> (pDUID, dcdefinition, pHeldElems);\r\n"
-                    "}",
-            "DCType *\r\n"
-                    "TWBaseClientEngine::InitializeTWReportDC (TWDUID & pDUID, TWSHeldElems & pHeldElems) noexcept\r\n"
-                    "{\r\n"
-                    "        TRACEFUNC;\r\n"
-                    "\r\n"
-                    "        TWSObject   dcdefinition;\r\n"
-                    "\r\n"
-                    "    vVersion   =        parms   -> uPreviousStage.uRequestContext.GetContentValue<TUInt64> (iTWFieldID::RESOLVED_VERSION);\r\n"
-                    "    rangetondx      =            rangedata       ->  GetContentValue<TUInt32> (nullptr, iTWFieldID::RANGE_TO);\r\n"
-                    "        rc          =    TWDITPacket::RemoveSimpleDIT    (pPacket    ->GetTWNPBasePacketHeader (), pPacket   ->      uNumDITBlocks);\r\n"
-                    "    parentref   = pInstructionSet    ->  at (instruction->     uParentIDx)->    uElementRef;\r\n"
-                    "\r\n"
-                    "    if (TWUtils::IsMultipleOf64 (   pPacket->   uDataLen)) [[likely]] {\r\n"
-                    "\r\n"
-                    "        obj.GetDCObjectElemPtr ()->   MoveToLRU (pLRUPriority);\r\n"
-                    "    }\r\n"
-                    "\r\n"
-                    "    return sBaseClientEngine  ->   InitializeSimpleDC  <DCType> (pDUID,   dcdefinition, pHeldElems);\r\n"
-                    "}",
-                    
                     Style);
     }
 
@@ -376,6 +307,76 @@ namespace {
                     "          a::b<int>::c    =5  ;\r\n"
                     "      int a = (int)b;\r\n"
                     "}",
+                    Style);
+    }
+
+    TEST_F(TWClangFormatTest, ArrowOperator) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("void\r\n"
+                    "func ()\r\n"
+                    "{\r\n"
+                    "        TUInt32     nextid;\r\n"
+                    "        TWSMustLock portelemslock (portelem->uSyncFlag[ipprotocol.IntVal ()][transportprotocol.IntVal ()], eTWSyncType::EXCLUSIVE);\r\n"
+                    "\r\n"
+                    "    sBaseClientEngine->GetSimpleDUID (pDUID, eTWBaseDCType::REPORT_DC, eTWAppDCType::UNKNOWN, nextid);\r\n"
+                    "    (((ClassName *) this)->*pResolveQueryFunc) (parms);\r\n"
+                    "    ((TWNWIOHandle *) eventqueue[idx].data.ptr)->OnSocketCanReadWithoutBlocking ();\r\n"
+                    "    CHECKTRUE (pQty->PrivateIsRepeat ());\r\n"
+                    "}",
+                    "void\r\n"
+                    "func ()\r\n"
+                    "{\r\n"
+                    "        TUInt32 nextid;\r\n"
+                    "    TWSMustLock     portelemslock (portelem ->  uSyncFlag[ipprotocol.IntVal ()][transportprotocol.IntVal ()],       eTWSyncType::EXCLUSIVE);\r\n"
+                    "\r\n"
+                    "            sBaseClientEngine   ->      GetSimpleDUID (pDUID, eTWBaseDCType::REPORT_DC, eTWAppDCType::UNKNOWN, nextid);\r\n"
+                    "        (((ClassName *  ) this    )-> *   pResolveQueryFunc) (parms);\r\n"
+                    "    ((TWNWIOHandle      *) eventqueue[idx].data.ptr)->      OnSocketCanReadWithoutBlocking ();\r\n"
+                    "            CHECKTRUE ( pQty->       PrivateIsRepeat ());\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("DCType *\r\n"
+                    "TWBaseClientEngine::InitializeTWReportDC (TWDUID & pDUID, TWSHeldElems & pHeldElems) noexcept\r\n"
+                    "{\r\n"
+                    "        TRACEFUNC;\r\n"
+                    "\r\n"
+                    "        TWSObject   dcdefinition;\r\n"
+                    "\r\n"
+                    "    vVersion   = parms->uPreviousStage.uRequestContext.GetContentValue<TUInt64> (iTWFieldID::RESOLVED_VERSION);\r\n"
+                    "    rangetondx = rangedata->GetContentValue<TUInt32> (nullptr, iTWFieldID::RANGE_TO);\r\n"
+                    "    rc         = TWDITPacket::RemoveSimpleDIT (pPacket->GetTWNPBasePacketHeader (), pPacket->uNumDITBlocks);\r\n"
+                    "    parentref  = pInstructionSet->at (instruction->uParentIDx)->uElementRef;\r\n"
+                    "\r\n"
+                    "    if (TWUtils::IsMultipleOf64 (pPacket->uDataLen)) [[likely]] {\r\n"
+                    "\r\n"
+                    "        obj.GetDCObjectElemPtr ()->MoveToLRU (pLRUPriority);\r\n"
+                    "    }\r\n"
+                    "\r\n"
+                    "    return sBaseClientEngine->InitializeSimpleDC<DCType> (pDUID, dcdefinition, pHeldElems);\r\n"
+                    "}",
+            "DCType *\r\n"
+                    "TWBaseClientEngine::InitializeTWReportDC (TWDUID & pDUID, TWSHeldElems & pHeldElems) noexcept\r\n"
+                    "{\r\n"
+                    "        TRACEFUNC;\r\n"
+                    "\r\n"
+                    "        TWSObject   dcdefinition;\r\n"
+                    "\r\n"
+                    "    vVersion   =        parms   -> uPreviousStage.uRequestContext.GetContentValue<TUInt64> (iTWFieldID::RESOLVED_VERSION);\r\n"
+                    "    rangetondx      =            rangedata       ->  GetContentValue<TUInt32> (nullptr, iTWFieldID::RANGE_TO);\r\n"
+                    "        rc          =    TWDITPacket::RemoveSimpleDIT    (pPacket    ->GetTWNPBasePacketHeader (), pPacket   ->      uNumDITBlocks);\r\n"
+                    "    parentref   = pInstructionSet    ->  at (instruction->     uParentIDx)->    uElementRef;\r\n"
+                    "\r\n"
+                    "    if (TWUtils::IsMultipleOf64 (   pPacket->   uDataLen)) [[likely]] {\r\n"
+                    "\r\n"
+                    "        obj.GetDCObjectElemPtr ()->   MoveToLRU (pLRUPriority);\r\n"
+                    "    }\r\n"
+                    "\r\n"
+                    "    return sBaseClientEngine  ->   InitializeSimpleDC  <DCType> (pDUID,   dcdefinition, pHeldElems);\r\n"
+                    "}",
+                    
                     Style);
     }
 
@@ -584,6 +585,32 @@ namespace {
                     "};",
                     
                     Style);
+    }
+
+    TEST_F(TWClangFormatTest, Template) {
+    
+        FormatStyle Style = getTWStyle();
+
+        verifyFormat("class TWString {\r\n"
+                    "                template <bool IsCharLimit = true>\r\n"
+                    "static          TUInt32 PrivateCalcNumCharUTF8  (CVPtr pString, TUInt32 pLimit) noexcept;\r\n"
+                    "\r\n"
+                    "                template <eTWCommPortType::Enum CommProtocol, eTWTransportProtocol::Enum TransportProtocol, eTWSocketConnectionType::Enum ConnectionType, eTWSocketRole::Enum Role>\r\n"
+                    "static          bool    PrivateOpenSocket       (TWSocketElem * pSockElem) noexcept;\r\n"
+                    "}",
+                    "class TWString {\r\n"
+                    "                template <bool IsCharLimit=true>\r\n"
+                    "static          TUInt32 PrivateCalcNumCharUTF8  (CVPtr pString, TUInt32 pLimit) noexcept;\r\n"
+                    "\r\n"
+                    "template <eTWCommPortType::Enum CommProtocol, eTWTransportProtocol::Enum TransportProtocol, eTWSocketConnectionType::Enum ConnectionType, eTWSocketRole::Enum Role>\r\n"
+                    "static          bool                PrivateOpenSocket                           (TWSocketElem * pSockElem) noexcept;\r\n"
+                    "}",
+                    Style);
+    }
+
+    TEST_F(TWClangFormatTest, nodiscard) {
+    
+        FormatStyle Style = getTWStyle();
 
         verifyFormat("class TWSString {\r\n"
                     "\r\n"
@@ -631,7 +658,7 @@ namespace {
                     "};",
                     
                     Style);
-        }
+    }
 
     TEST_F(TWClangFormatTest, MaybeUnused) {
     
@@ -788,6 +815,169 @@ namespace {
                     "    // sdf\r\n"
                     "    return true;\r\n"
                     "}",
+                    Style);
+
+        verifyFormat("/**\r\n"
+                    " * @class     TInt128\r\n"
+                    " *\r\n"
+                    " * @brief     A custom class representing a 128-bit signed integer using\r\n"
+                    " *            two 64-bit integers internally. This implementation aims to\r\n"
+                    " *            provide all the necessary operator overloads to work with\r\n"
+                    " *            128-bit integers.\r\n"
+                    " *\r\n"
+                    " * @ingroup   TWCoreBasicLib\r\n"
+                    " */\r\n"
+                    "template <typename CharType, TUInt32 Len>\r\n"
+                    "TUInt32\r\n"
+                    "TWInternalPString<CharType, Len>::GetSize () const noexcept\r\n"
+                    "{\r\n"
+                    "    return vSize;\r\n"
+                    "}",
+                    "/**\r\n"
+                    " * @class     TInt128\r\n"
+                    " *\r\n"
+                    " * @brief     A custom class representing a 128-bit signed integer using\r\n"
+                    " *            two 64-bit integers internally. This implementation aims to\r\n"
+                    " *            provide all the necessary operator overloads to work with\r\n"
+                    " *            128-bit integers.\r\n"
+                    " *\r\n"
+                    " * @ingroup   TWCoreBasicLib\r\n"
+                    " */\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "template <typename CharType, TUInt32 Len>\r\n"
+                    "TUInt32\r\n"
+                    "TWInternalPString<CharType, Len>::GetSize () const noexcept\r\n"
+                    "{\r\n"
+                    "    return vSize;\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("// Sri Ganeshji : Sri Balaji : Sri Pitreshwarji : Sri Durgaji : Sri Venkateshwara\r\n"
+                    "\r\n"
+                    "/**\r\n"
+                    " * @class     TInt128\r\n"
+                    " *\r\n"
+                    " * @brief     A custom class representing a 128-bit signed integer using\r\n"
+                    " *            two 64-bit integers internally. This implementation aims to\r\n"
+                    " *            provide all the necessary operator overloads to work with\r\n"
+                    " *            128-bit integers.\r\n"
+                    " *\r\n"
+                    " * @ingroup   TWCoreBasicLib\r\n"
+                    " */\r\n"
+                    "template <typename CharType, TUInt32 Len>\r\n"
+                    "class TWInternalPString {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "    // Constructors\r\n"
+                    "\r\n"
+                    "                    template <typename InputCharType>\r\n"
+                    "        constexpr       TWInternalPString   (const InputCharType (&pString)[Len]) noexcept;\r\n"
+                    "};",
+                    "// Sri Ganeshji : Sri Balaji : Sri Pitreshwarji : Sri Durgaji : Sri Venkateshwara\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "/**\r\n"
+                    " * @class     TInt128\r\n"
+                    " *\r\n"
+                    " * @brief     A custom class representing a 128-bit signed integer using\r\n"
+                    " *            two 64-bit integers internally. This implementation aims to\r\n"
+                    " *            provide all the necessary operator overloads to work with\r\n"
+                    " *            128-bit integers.\r\n"
+                    " *\r\n"
+                    " * @ingroup   TWCoreBasicLib\r\n"
+                    " */\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "template <typename CharType, TUInt32 Len>\r\n"
+                    "class TWInternalPString {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "    // Constructors\r\n"
+                    "\r\n"
+                    "                    template <typename InputCharType>\r\n"
+                    "        constexpr       TWInternalPString   (const InputCharType (&pString)[Len]) noexcept;\r\n"
+                    "};",
+                    Style);
+        }
+
+    TEST_F(TWClangFormatTest, LineWrap) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("void\r\n"
+                    "func ()\r\n"
+                    "{\r\n"
+                    "    f (a,\r\n"
+                    "       b,        // df\r\n"
+                    "       c,\r\n"
+                    "       v);\r\n"
+                    "\r\n"
+                    "    f (a,\r\n"
+                    "       b, c,\r\n"
+                    "       v);\r\n"
+                    "\r\n"
+                    "    TRACE_DIAG_LOG (TW_INFO, eTWCommLifeCycleOpertaionsTraces, TWNP_COMMUNICATION, \"Thread ID : % & Event ID : %\\n\",\r\n"
+                    "                    TWMainThreadMgr::GetThreadID (),\r\n"
+                    "                    pEvent.GetEventID ().GetLogicalID ());\r\n"
+                    "}",    
+
+                    "void\r\n"
+                    "func ()\r\n"
+                    "{\r\n"
+                    "    f ( a,\r\n"
+                    "       b,        // df\r\n"
+                    "        c,\r\n"
+                    "    v);\r\n"
+                    "\r\n"
+                    "    f (a,\r\n"
+                    "            b,  c,\r\n"
+                    "        v);\r\n"
+                    "\r\n"
+                    "    TRACE_DIAG_LOG (TW_INFO, eTWCommLifeCycleOpertaionsTraces, TWNP_COMMUNICATION, \"Thread ID : % & Event ID : %\\n\",\r\n"
+                    "                        TWMainThreadMgr::GetThreadID (),\r\n"
+                    "                            pEvent.GetEventID ().GetLogicalID ());\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("void\r\n"
+                    "TWCoreBasicMain ::AppSignalHandler ([[maybe_unused]] eTWAppSignal pAppSignal,\r\n"
+                    "                                    [[maybe_unused]] TUInt64 pParms, TUInt64 pParms) noexcept\r\n"
+                    "{\r\n"
+                    "    ;\r\n"
+                    "}",
+
+                    "void\r\n"
+                    "TWCoreBasicMain ::AppSignalHandler ([[maybe_unused]] eTWAppSignal   pAppSignal,\r\n"
+                    "                                        [[maybe_unused]] TUInt64    pParms,     TUInt64 pParms) noexcept\r\n"
+                    "{\r\n"
+                    "    ;\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("class TWSString {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "static          TWContent *     PrivateCreatFrom    (TWCntent * pSource,\r\n"
+                    "                                                      const TWContent * pOwner,\r\n"
+                    "                                                      bool pIsReconstructCopy, TUInt32 pMyIndexInOwner) noexcept;\r\n"
+                    "static          TWContent **    CreateFromBuffer    (const TWDataBuffer * pBuffer,\r\n"
+                    "                                                      bool pIsReconstructCopy);\r\n"
+                    "};",
+
+                    "class TWSString {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "static          TWContent *         PrivateCreatFrom    (TWCntent * pSource,\r\n"
+                    "                                                    const TWContent * pOwner,\r\n"
+                    "                                                                bool pIsReconstructCopy, TUInt32 pMyIndexInOwner) noexcept;\r\n"
+                    "static          TWContent ** CreateFromBuffer    (const TWDataBuffer * pBuffer,\r\n"
+                    "                                                             bool pIsReconstructCopy);\r\n"
+                    "};",
                     Style);
         }
 
