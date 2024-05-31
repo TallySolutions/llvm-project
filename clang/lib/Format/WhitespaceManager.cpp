@@ -2465,7 +2465,11 @@ void WhitespaceManager::addlineaftercomment() {
             continue;
         }
 
-        if (Changes[i].Tok->TokenText[0] == '/' && Changes[i].Tok->TokenText[1] == '*' && Changes[i].Tok->TokenText[2] == '*') {
+        /*
+        * if comment is starting with "/**"
+        * skip case like "/***"
+        */
+        if (Changes[i].Tok->TokenText.size()>3 && Changes[i].Tok->TokenText[0] == '/' && Changes[i].Tok->TokenText[1] == '*' && Changes[i].Tok->TokenText[2] == '*' && Changes[i].Tok->TokenText[3] != '*') {
             is_doxygen_comment = true;
         }
 
@@ -2474,11 +2478,7 @@ void WhitespaceManager::addlineaftercomment() {
             j++;
         }
 
-        //if (j < Changes.size() && Changes[j].Tok->is(tok::kw_template)) {
-        //
-        //}
-
-        if (j < Changes.size()) {
+        if (j < Changes.size()-1) {
             Changes[j].NewlinesBefore = 2;
             if (is_doxygen_comment)
                 Changes[j].NewlinesBefore = 1;

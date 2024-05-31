@@ -901,6 +901,54 @@ namespace {
                     "        constexpr       TWInternalPString   (const InputCharType (&pString)[Len]) noexcept;\r\n"
                     "};",
                     Style);
+
+        verifyFormat("/**\r\n"
+                    " * jk\r\n"
+                    " */\r\n"
+                    "#define ab 8\r\n"
+                    "\r\n"
+                    "/************** internal functions ***************/\r\n"
+                    "\r\n"
+                    "int i;",
+                    "/**\r\n"
+                    " * jk\r\n"
+                    " */\r\n"
+                    "\r\n"
+                    "#define ab 8\r\n"
+                    "\r\n"
+                    "/************** internal functions ***************/\r\n"
+                    "int i;",
+                    Style);
+
+        verifyFormat("/**\r\n"
+                    " * @brief This macro is used for logging debug error and printing all the traces before the program exist.\r\n"
+                    " */\r\n"
+                    "#define DEBUG_ERROR a = 6;\r\n"
+                    "\r\n"
+                    "/**\r\n"
+                    " * @brief This macro is used for logging debug error and printing all the traces with current status\r\n"
+                    " */\r\n"
+                    "#define DEBUG_PRINT a = 5;\r\n"
+                    "\r\n"
+                    "// exit when condition is true\r\n"
+                    "\r\n"
+                    "#if (TW_KERNEL_WINDOWS)",
+                    "/**\r\n"
+                    " * @brief This macro is used for logging debug error and printing all the traces before the program exist.\r\n"
+                    " */\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "#define DEBUG_ERROR a = 6;\r\n"
+                    "\r\n"
+                    "/**\r\n"
+                    " * @brief This macro is used for logging debug error and printing all the traces with current status\r\n"
+                    " */\r\n"
+                    "\r\n"
+                    "#define DEBUG_PRINT a = 5;\r\n"
+                    "\r\n"
+                    "// exit when condition is true\r\n"
+                    "#if (TW_KERNEL_WINDOWS)",
+                    Style);
         }
 
     TEST_F(TWClangFormatTest, LineWrap) {
