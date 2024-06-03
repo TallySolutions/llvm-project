@@ -785,6 +785,32 @@ public:
       )) ? true : false;
   }
 
+  // TALLY: check if token is
+  // [[nodiscard]] or [[noreturn]] or [[maybe_unused]]
+  bool isCPPAttribute() const {
+
+    if (this->is(tok::l_square)) {
+
+      const FormatToken *next = this->getNextNonComment();
+
+      if (next && next->is(tok::l_square)) {
+
+        next = next->getNextNonComment();
+        if (next && (next->TokenText.startswith ("nodiscard") || next->TokenText.startswith ("noreturn") || next->TokenText.startswith ("maybe_unused"))) {
+
+          next = next->getNextNonComment();
+          if (next && next->is(tok::r_square)) {
+
+            next = next->getNextNonComment();
+            return next && next->is(tok::r_square);
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
   // TALLY: Helper function
   bool isDeclSpecStaticOrVirtual() const {
       return (isOneOf(tok::kw_static, tok::kw_virtual)) ? true : false;

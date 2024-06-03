@@ -308,6 +308,32 @@ namespace {
                     "      int a = (int)b;\r\n"
                     "}",
                     Style);
+
+        verifyFormat("void\r\n"
+                    "TWString::PrivateInsert (const TWString * pString, TUInt32 pNdxToInsert) noexcept\r\n"
+                    "{\r\n"
+                    "        TRACEFUNC;\r\n"
+                    "\r\n"
+                    "        TUInt32 parmlen;\r\n"
+                    "        TUInt32 shiftlen;\r\n"
+                    "\r\n"
+                    "    TWUtils::MemCpy (InternalGetRawValue () + pNdxToInsert + parmlen, InternalGetRawValue () + pNdxToInsert, (TUInt64) (shiftlen * TWConst (TWString)::sTWUnicodeCharSize));\r\n"
+                    "\r\n"
+                    "    TWUtils::MemCpy (InternalGetRawValue () + pNdxToInsert, pString->GetRawString (), (TUInt64) (parmlen * TWConst (TWString)::sTWUnicodeCharSize));\r\n"
+                    "}",
+                    "void\r\n"
+                    "TWString::PrivateInsert (const TWString * pString, TUInt32 pNdxToInsert) noexcept\r\n"
+                    "{\r\n"
+                    "            TRACEFUNC;\r\n"
+                    "\r\n"
+                    "        TUInt32 parmlen;\r\n"
+                    "            TUInt32 shiftlen;\r\n"
+                    "\r\n"
+                    "            TWUtils::MemCpy         (InternalGetRawValue () + pNdxToInsert + parmlen, InternalGetRawValue () + pNdxToInsert, (TUInt64) (shiftlen * TWConst (TWString)::sTWUnicodeCharSize));\r\n"
+                    "\r\n"
+                    "        TWUtils::   MemCpy (InternalGetRawValue () + pNdxToInsert, pString->GetRawString (), (TUInt64) (parmlen * TWConst (TWString)::sTWUnicodeCharSize));\r\n"
+                    "}",
+                    Style);
     }
 
     TEST_F(TWClangFormatTest, ArrowOperator) {
@@ -488,19 +514,20 @@ namespace {
                     "\r\n"
                     "    public:\r\n"
                     "\r\n"
-                    "                            TWSString                       () noexcept;\r\n"
-                    "                           ~TWSString                       () noexcept;\r\n"
-                    "                bool        Initialize                      (TUInt32 pInitialLen = TWSTR_DEFAULT_ALLOC_SIZE_NEW) noexcept;\r\n"
-                    "                bool        SetString                       (const jstring pString) noexcept;\r\n"
-                    "static          void        Destroy                         (Type ** pContent) noexcept;\r\n"
+                    "                                    TWSString                       () noexcept;\r\n"
+                    "                                   ~TWSString                       () noexcept;\r\n"
+                    "                bool                Initialize                      (TUInt32 pInitialLen = TWSTR_DEFAULT_ALLOC_SIZE_NEW) noexcept;\r\n"
+                    "                bool                SetString                       (const jstring pString) noexcept;\r\n"
+                    "static          void                Destroy                         (Type ** pContent) noexcept;\r\n"
                     "\r\n"
                     "    private:\r\n"
                     "\r\n"
-                    "                TWString *  InternalInitializeScratch       (TUInt32 pInitialLength) noexcept;\r\n"
-                    "                TWString *  InternalResizeScratchContent    (TUInt32 pRequiredLength) noexcept;\r\n"
-                    "                CVPtr       PrivateGetConstValuePtr         () const noexcept;\r\n"
-                    "static          TWContent * PrivateCreateHybridFrom         (const TWContent * pSource, const TWContent * pOwner, bool pIsReconstructCopy, TUInt32 pMyIndexInOwner) noexcept;\r\n"
-                    "static          TWContent * CreateFromBuffer                (const TWDataBuffer * pBuffer);\r\n"
+                    "                TWString *          InternalInitializeScratch       (TUInt32 pInitialLength) noexcept;\r\n"
+                    "                TWString *          InternalResizeScratchContent    (TUInt32 pRequiredLength) noexcept;\r\n"
+                    "                CVPtr               PrivateGetConstValuePtr         () const noexcept;\r\n"
+                    "static          TWContent *         PrivateCreateHybridFrom         (const TWContent * pSource, const TWContent * pOwner, bool pIsReconstructCopy, TUInt32 pMyIndexInOwner) noexcept;\r\n"
+                    "static          TWContent *         CreateFromBuffer                (const TWDataBuffer * pBuffer);\r\n"
+                    "static          tTWMemoryPoolMgr    sPoolMgr[TWConst (TWMemoryMgr)::sMaxPoolGroups * TWConst (TWMemoryMgr)::sMaxSizesPerGroup];\r\n"
                     "};", 
                     "class TWSString {\r\n"
                     "\r\n"
@@ -519,6 +546,7 @@ namespace {
                     "                    CVPtr                           PrivateGetConstValuePtr             () const noexcept;\r\n"
                     "        static          TWContent *                     PrivateCreateHybridFrom             (const TWContent * pSource, const TWContent * pOwner, bool pIsReconstructCopy, TUInt32 pMyIndexInOwner) noexcept;\r\n"
                     "                    static          TWContent *                     CreateFromBuffer                    (const TWDataBuffer * pBuffer);\r\n"
+                    "static              tTWMemoryPoolMgr            sPoolMgr[TWConst (TWMemoryMgr)::sMaxPoolGroups * TWConst (TWMemoryMgr)::sMaxSizesPerGroup];\r\n"
                     "\r\n"
                     "};",
                     Style);

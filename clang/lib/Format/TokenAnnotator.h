@@ -350,6 +350,9 @@ private:
   bool CheckIfDatatype (FormatToken* token);
 
   // TALLY
+  void MarkDatatype (FormatToken* token);
+
+  // TALLY
   bool isFunctionLocalVariableDeclaration(const FormatToken * pTkn, const FormatToken * pNxt);
 
   // TALLY
