@@ -615,6 +615,67 @@ namespace {
                     Style);
     }
 
+    TEST_F(TWClangFormatTest, ConstAlignmentInClassScope) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("class TWSString {\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "                TWString *              InternalInitializeScratch               (TUInt32 pInitialLength) noexcept;\r\n"
+                    "                [[nodiscard]]\r\n"
+                    "        const   TWObjID &               GetObjID                                () const noexcept;\r\n"
+                    "                [[nodiscard]]\r\n"
+                    "        const   TWContainerBase *       InternalGetConstOwnerPtrWIP             () const noexcept;\r\n"
+                    "static  const   TWLadderedWIPBuffer *   InternalGetConstWIPBufferAtNextLevel    (const TWLadderedWIPBuffer * pDest, TUInt32 pID) noexcept;\r\n"
+                    "                template <typename BufType>\r\n"
+                    "static  const   BufType *               PrivateGetConstLeafLadder               (const BufType * pLadderBuf, TUInt32 pID) noexcept;\r\n"
+                    "};",
+                    "class TWSString {\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "                TWString *          InternalInitializeScratch           (TUInt32 pInitialLength) noexcept;\r\n"
+                    "    [[nodiscard]]\r\n"
+                    "        const   TWObjID &       GetObjID                            () const noexcept;\r\n"
+                    "            [[nodiscard]]\r\n"
+                    "        const   TWContainerBase *               InternalGetConstOwnerPtrWIP                         () const noexcept;\r\n"
+                    "    static  const   TWLadderedWIPBuffer *           InternalGetConstWIPBufferAtNextLevel                (const TWLadderedWIPBuffer * pDest, TUInt32 pID) noexcept;\r\n"
+                    "            template <typename BufType>\r\n"
+                    "static  const   BufType *                       PrivateGetConstLeafLadder                           (const BufType * pLadderBuf, TUInt32 pID) noexcept;\r\n"
+                    "};",
+                    Style);
+
+        verifyFormat("class TWSString {\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "static  const   Bype            PrivateGetConstLeafLadder           (const BufType * pLadderBuf, TUInt32 pID) noexcept;\r\n"
+                    "static  const   BufType *       PrivateGetConstLeafLadder           (const BufType * pLadderBuf, TUInt32 pID) noexcept;\r\n"
+                    "                [[nodiscard]]\r\n"
+                    "static          VPtr *          PrivateGetContainerPtrAddress       (TWLadderedWIPBuffer * pWIPBuf) noexcept;\r\n"
+                    "                [[nodiscard]]\r\n"
+                    "                CVPtr const *   PrivateGetConstParentURLPtrAddress  () const noexcept;\r\n"
+                    "                [[nodiscard]]\r\n"
+                    "static          CVPtr const *   PrivateGetConstContainerPtrAddress  (const TWLadderedWIPBuffer * pWIPBuf) noexcept;\r\n"
+                    "};",
+                    "class TWSString {\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "static      const       Bype            PrivateGetConstLeafLadder           (const BufType * pLadderBuf, TUInt32 pID) noexcept;\r\n"
+                    "static      const       BufType *               PrivateGetConstLeafLadder               (const BufType * pLadderBuf, TUInt32 pID) noexcept;\r\n"
+                    "[[nodiscard]]\r\n"
+                    "static          VPtr *                          PrivateGetContainerPtrAddress                       (TWLadderedWIPBuffer * pWIPBuf) noexcept;\r\n"
+                    "[[nodiscard]]\r\n"
+                    "            CVPtr const *   PrivateGetConstParentURLPtrAddress  () const noexcept;\r\n"
+                    "            [[nodiscard]]\r\n"
+                    "static              CVPtr   const *                   PrivateGetConstContainerPtrAddress                  (const TWLadderedWIPBuffer * pWIPBuf) noexcept;\r\n"
+                    "};",
+                    Style);
+    }
+
     TEST_F(TWClangFormatTest, Template) {
     
         FormatStyle Style = getTWStyle();

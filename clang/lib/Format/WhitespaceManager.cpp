@@ -1318,6 +1318,15 @@ void WhitespaceManager::columnarizeDeclarationSpecifierTokens() {
         if (MyTok->isAfterNoDiscardOrNoReturnOrTemplate(dummy))
             continue;
 
+        if (MyTok->IsDatatype) {
+            ++i;
+            while (i < Changes.size() && Changes[i].NewlinesBefore == 0) {
+                ++i;
+            }
+            --i;
+            continue;
+        }
+
         AnnotatedLine* MyLine = MyTok->MyLine;
 
         // As spaces before 'static' or 'virtual' has been set to zero, if static or virtual 

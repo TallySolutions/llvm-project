@@ -4080,7 +4080,7 @@ bool TokenAnnotator::CheckIfDatatype (FormatToken* token) {
         * then skip it
         */
 
-        if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->isCPPAttribute()) {
+        if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->is(tok::amp)) {
             has_const = true;
             Next = Next->Next;
             continue;
@@ -4175,7 +4175,7 @@ void TokenAnnotator::MarkDatatype (FormatToken* token) {
         * then skip it
         */
 
-        if (Next->isDeclarationSpecifier() || Next->is(tok::star)) {
+        if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->is(tok::amp)) {
             if (j==1) 
                 Next->IsInterimBeforeName = true;
             Next = Next->Next;
@@ -5503,100 +5503,104 @@ bool TokenAnnotator::spaceRequiredBetween(const AnnotatedLine &Line,
 
 bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
                                          const FormatToken &Right) const {
-  const FormatToken &Left = *Right.Previous;
 
-  // If the token is finalized don't touch it (as it could be in a
-  // clang-format-off section).
-  if (Left.Finalized)
+    const FormatToken &Left = *Right.Previous;
+
+    // If the token is finalized don't touch it (as it could be in a
+    // clang-format-off section).
+    if (Left.Finalized)
     return Right.hasWhitespaceBefore();
 
-  // Never ever merge two words.
-  if (Keywords.isWordLike(Right) && Keywords.isWordLike(Left))
+    // Never ever merge two words.
+    if (Keywords.isWordLike(Right) && Keywords.isWordLike(Left))
     return true;
 
-  // Leave a space between * and /* to avoid C4138 `comment end` found outside
-  // of comment.
-  if (Left.is(tok::star) && Right.is(tok::comment))
+    // Leave a space between * and /* to avoid C4138 `comment end` found outside
+    // of comment.
+    if (Left.is(tok::star) && Right.is(tok::comment))
     return true;
 
-  if (Style.isCpp()) {
-    if (Left.is(tok::star) && Left.Previous && (Left.Previous->is(tok::arrow) || Left.Previous->is(tok::period)))
-        return false;
-    if (Left.is(TT_OverloadedOperator) &&
-        Right.isOneOf(TT_TemplateOpener, TT_TemplateCloser)) {
-      return true;
-    }
-    // Space between UDL and dot: auto b = 4s .count();
-    if (Right.is(tok::period) && Left.is(tok::numeric_constant))
-      return true;
-    // Space between import <iostream>.
-    // or import .....;
-    if (Left.is(Keywords.kw_import) && Right.isOneOf(tok::less, tok::ellipsis))
-      return true;
-    // Space between `module :` and `import :`.
-    if (Left.isOneOf(Keywords.kw_module, Keywords.kw_import) &&
-        Right.is(TT_ModulePartitionColon)) {
-      return true;
-    }
-    // No space between import foo:bar but keep a space between import :bar;
-    if (Left.is(tok::identifier) && Right.is(TT_ModulePartitionColon))
-      return false;
-    // No space between :bar;
-    if (Left.is(TT_ModulePartitionColon) &&
-        Right.isOneOf(tok::identifier, tok::kw_private)) {
-      return false;
-    }
-    if (Left.is(tok::ellipsis) && Right.is(tok::identifier) &&
-        Line.First->is(Keywords.kw_import)) {
-      return false;
-    }
-    // Space in __attribute__((attr)) ::type.
-    if (Left.isOneOf(TT_AttributeRParen, TT_AttributeMacro) &&
-        Right.is(tok::coloncolon)) {
-      return true;
-    }
+    if (Style.isCpp()) {
+        if (Left.is(tok::star) && Left.Previous && (Left.Previous->is(tok::arrow) || Left.Previous->is(tok::period)))
+            return false;
+        if (Left.is(TT_OverloadedOperator) &&
+            Right.isOneOf(TT_TemplateOpener, TT_TemplateCloser)) {
+            return true;
+        }
+        // Space between UDL and dot: auto b = 4s .count();
+        if (Right.is(tok::period) && Left.is(tok::numeric_constant))
+            return true;
+        // Space between import <iostream>.
+        // or import .....;
+        if (Left.is(Keywords.kw_import) && Right.isOneOf(tok::less, tok::ellipsis))
+            return true;
+        // Space between `module :` and `import :`.
+        if (Left.isOneOf(Keywords.kw_module, Keywords.kw_import) &&
+            Right.is(TT_ModulePartitionColon)) {
+            return true;
+        }
+        // No space between import foo:bar but keep a space between import :bar;
+        if (Left.is(tok::identifier) && Right.is(TT_ModulePartitionColon))
+            return false;
+        // No space between :bar;
+        if (Left.is(TT_ModulePartitionColon) &&
+            Right.isOneOf(tok::identifier, tok::kw_private)) {
+            return false;
+        }
+        if (Left.is(tok::ellipsis) && Right.is(tok::identifier) &&
+            Line.First->is(Keywords.kw_import)) {
+            return false;
+        }
+        // Space in __attribute__((attr)) ::type.
+        if (Left.isOneOf(TT_AttributeRParen, TT_AttributeMacro) &&
+            Right.is(tok::coloncolon)) {
+            return true;
+        }
 
-    if (Left.is(tok::kw_operator))
-      return Right.is(tok::coloncolon);
-    if (Right.is(tok::l_brace) && Right.is(BK_BracedInit) &&
-        !Left.opensScope() && Style.SpaceBeforeCpp11BracedList) {
-      return true;
-    }
-    if (Left.is(tok::less) && Left.is(TT_OverloadedOperator) &&
-        Right.is(TT_TemplateOpener)) {
-      return true;
-    }
-  } else if (Style.isProto()) {
+        if (Left.is(tok::kw_operator))
+            return Right.is(tok::coloncolon);
+        if (Right.is(tok::l_brace) && Right.is(BK_BracedInit) &&
+            !Left.opensScope() && Style.SpaceBeforeCpp11BracedList) {
+            return true;
+        }
+        if (Left.is(tok::less) && Left.is(TT_OverloadedOperator) &&
+            Right.is(TT_TemplateOpener)) {
+            return true;
+        }
+    } 
+    else if (Style.isProto()) {
     if (Right.is(tok::period) &&
         Left.isOneOf(Keywords.kw_optional, Keywords.kw_required,
-                     Keywords.kw_repeated, Keywords.kw_extend)) {
-      return true;
+                        Keywords.kw_repeated, Keywords.kw_extend)) {
+        return true;
     }
     if (Right.is(tok::l_paren) &&
         Left.isOneOf(Keywords.kw_returns, Keywords.kw_option)) {
-      return true;
+        return true;
     }
     if (Right.isOneOf(tok::l_brace, tok::less) && Left.is(TT_SelectorName))
-      return true;
+        return true;
     // Slashes occur in text protocol extension syntax: [type/type] { ... }.
     if (Left.is(tok::slash) || Right.is(tok::slash))
-      return false;
+        return false;
     if (Left.MatchingParen &&
         Left.MatchingParen->is(TT_ProtoExtensionLSquare) &&
         Right.isOneOf(tok::l_brace, tok::less)) {
-      return !Style.Cpp11BracedListStyle;
+        return !Style.Cpp11BracedListStyle;
     }
     // A percent is probably part of a formatting specification, such as %lld.
     if (Left.is(tok::percent))
-      return false;
+        return false;
     // Preserve the existence of a space before a percent for cases like 0x%04x
     // and "%d %d"
     if (Left.is(tok::numeric_constant) && Right.is(tok::percent))
-      return Right.hasWhitespaceBefore();
-  } else if (Style.isJson()) {
-    if (Right.is(tok::colon) && Left.is(tok::string_literal))
-      return Style.SpaceBeforeJsonColon;
-  } else if (Style.isCSharp()) {
+        return Right.hasWhitespaceBefore();
+    } 
+    else if (Style.isJson()) {
+        if (Right.is(tok::colon) && Left.is(tok::string_literal))
+          return Style.SpaceBeforeJsonColon;
+    } 
+    else if (Style.isCSharp()) {
     // Require spaces around '{' and  before '}' unless they appear in
     // interpolated strings. Interpolated strings are merged into a single token
     // so cannot have spaces inserted by this function.
@@ -5671,7 +5675,8 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
         Right.is(tok::l_paren)) {
       return true;
     }
-  } else if (Style.isJavaScript()) {
+  } 
+    else if (Style.isJavaScript()) {
     if (Left.is(TT_FatArrow))
       return true;
     // for await ( ...
@@ -5775,7 +5780,8 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
         Right.isOneOf(Keywords.kw_as, Keywords.kw_in)) {
       return true; // "x! as string", "x! in y"
     }
-  } else if (Style.Language == FormatStyle::LK_Java) {
+  } 
+    else if (Style.Language == FormatStyle::LK_Java) {
     if (Left.is(tok::r_square) && Right.is(tok::l_brace))
       return true;
     // spaces inside square brackets.
@@ -5793,133 +5799,145 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
         Right.is(TT_TemplateOpener)) {
       return true;
     }
-  } else if (Style.isVerilog()) {
-    // An escaped identifier ends with whitespace.
-    if (Style.isVerilog() && Left.is(tok::identifier) &&
-        Left.TokenText[0] == '\\') {
-      return true;
+  } 
+    else if (Style.isVerilog()) {
+        // An escaped identifier ends with whitespace.
+        if (Style.isVerilog() && Left.is(tok::identifier) &&
+            Left.TokenText[0] == '\\') {
+          return true;
+        }
+        // Add space between things in a primitive's state table unless in a
+        // transition like `(0?)`.
+        if ((Left.is(TT_VerilogTableItem) &&
+             !Right.isOneOf(tok::r_paren, tok::semi)) ||
+            (Right.is(TT_VerilogTableItem) && Left.isNot(tok::l_paren))) {
+          const FormatToken *Next = Right.getNextNonComment();
+          return !(Next && Next->is(tok::r_paren));
+        }
+        // Don't add space within a delay like `#0`.
+        if (Left.isNot(TT_BinaryOperator) &&
+            Left.isOneOf(Keywords.kw_verilogHash, Keywords.kw_verilogHashHash)) {
+          return false;
+        }
+        // Add space after a delay.
+        if (Right.isNot(tok::semi) &&
+            (Left.endsSequence(tok::numeric_constant, Keywords.kw_verilogHash) ||
+             Left.endsSequence(tok::numeric_constant,
+                               Keywords.kw_verilogHashHash) ||
+             (Left.is(tok::r_paren) && Left.MatchingParen &&
+              Left.MatchingParen->endsSequence(tok::l_paren, tok::at)))) {
+          return true;
+        }
+        // Don't add embedded spaces in a number literal like `16'h1?ax` or an array
+        // literal like `'{}`.
+        if (Left.is(Keywords.kw_apostrophe) ||
+            (Left.is(TT_VerilogNumberBase) && Right.is(tok::numeric_constant))) {
+          return false;
+        }
+        // Add spaces around the implication operator `->`.
+        if (Left.is(tok::arrow) || Right.is(tok::arrow))
+          return true;
+        // Don't add spaces between two at signs. Like in a coverage event.
+        // Don't add spaces between at and a sensitivity list like
+        // `@(posedge clk)`.
+        if (Left.is(tok::at) && Right.isOneOf(tok::l_paren, tok::star, tok::at))
+          return false;
+        // Add space between the type name and dimension like `logic [1:0]`.
+        if (Right.is(tok::l_square) &&
+            Left.isOneOf(TT_VerilogDimensionedTypeName, Keywords.kw_function)) {
+          return true;
+        }
+        // In a tagged union expression, there should be a space after the tag.
+        if (Right.isOneOf(tok::period, Keywords.kw_apostrophe) &&
+            Keywords.isVerilogIdentifier(Left) && Left.getPreviousNonComment() &&
+            Left.getPreviousNonComment()->is(Keywords.kw_tagged)) {
+          return true;
+        }
+        // Don't add spaces between a casting type and the quote or repetition count
+        // and the brace. The case of tagged union expressions is handled by the
+        // previous rule.
+        if ((Right.is(Keywords.kw_apostrophe) ||
+             (Right.is(BK_BracedInit) && Right.is(tok::l_brace))) &&
+            !(Left.isOneOf(Keywords.kw_assign, Keywords.kw_unique) ||
+              Keywords.isVerilogWordOperator(Left)) &&
+            (Left.isOneOf(tok::r_square, tok::r_paren, tok::r_brace,
+                          tok::numeric_constant) ||
+             Keywords.isWordLike(Left))) {
+          return false;
+        }
+        // Don't add spaces in imports like `import foo::*;`.
+        if ((Right.is(tok::star) && Left.is(tok::coloncolon)) ||
+            (Left.is(tok::star) && Right.is(tok::semi))) {
+          return false;
+        }
+        // Add space in attribute like `(* ASYNC_REG = "TRUE" *)`.
+        if (Left.endsSequence(tok::star, tok::l_paren) && Right.is(tok::identifier))
+          return true;
+        // Add space before drive strength like in `wire (strong1, pull0)`.
+        if (Right.is(tok::l_paren) && Right.is(TT_VerilogStrength))
+          return true;
+        // Don't add space in a streaming concatenation like `{>>{j}}`.
+        if ((Left.is(tok::l_brace) &&
+             Right.isOneOf(tok::lessless, tok::greatergreater)) ||
+            (Left.endsSequence(tok::lessless, tok::l_brace) ||
+             Left.endsSequence(tok::greatergreater, tok::l_brace))) {
+          return false;
+        }
     }
-    // Add space between things in a primitive's state table unless in a
-    // transition like `(0?)`.
-    if ((Left.is(TT_VerilogTableItem) &&
-         !Right.isOneOf(tok::r_paren, tok::semi)) ||
-        (Right.is(TT_VerilogTableItem) && Left.isNot(tok::l_paren))) {
-      const FormatToken *Next = Right.getNextNonComment();
-      return !(Next && Next->is(tok::r_paren));
-    }
-    // Don't add space within a delay like `#0`.
-    if (Left.isNot(TT_BinaryOperator) &&
-        Left.isOneOf(Keywords.kw_verilogHash, Keywords.kw_verilogHashHash)) {
-      return false;
-    }
-    // Add space after a delay.
-    if (Right.isNot(tok::semi) &&
-        (Left.endsSequence(tok::numeric_constant, Keywords.kw_verilogHash) ||
-         Left.endsSequence(tok::numeric_constant,
-                           Keywords.kw_verilogHashHash) ||
-         (Left.is(tok::r_paren) && Left.MatchingParen &&
-          Left.MatchingParen->endsSequence(tok::l_paren, tok::at)))) {
-      return true;
-    }
-    // Don't add embedded spaces in a number literal like `16'h1?ax` or an array
-    // literal like `'{}`.
-    if (Left.is(Keywords.kw_apostrophe) ||
-        (Left.is(TT_VerilogNumberBase) && Right.is(tok::numeric_constant))) {
-      return false;
-    }
-    // Add spaces around the implication operator `->`.
-    if (Left.is(tok::arrow) || Right.is(tok::arrow))
-      return true;
-    // Don't add spaces between two at signs. Like in a coverage event.
-    // Don't add spaces between at and a sensitivity list like
-    // `@(posedge clk)`.
-    if (Left.is(tok::at) && Right.isOneOf(tok::l_paren, tok::star, tok::at))
-      return false;
-    // Add space between the type name and dimension like `logic [1:0]`.
-    if (Right.is(tok::l_square) &&
-        Left.isOneOf(TT_VerilogDimensionedTypeName, Keywords.kw_function)) {
-      return true;
-    }
-    // In a tagged union expression, there should be a space after the tag.
-    if (Right.isOneOf(tok::period, Keywords.kw_apostrophe) &&
-        Keywords.isVerilogIdentifier(Left) && Left.getPreviousNonComment() &&
-        Left.getPreviousNonComment()->is(Keywords.kw_tagged)) {
-      return true;
-    }
-    // Don't add spaces between a casting type and the quote or repetition count
-    // and the brace. The case of tagged union expressions is handled by the
-    // previous rule.
-    if ((Right.is(Keywords.kw_apostrophe) ||
-         (Right.is(BK_BracedInit) && Right.is(tok::l_brace))) &&
-        !(Left.isOneOf(Keywords.kw_assign, Keywords.kw_unique) ||
-          Keywords.isVerilogWordOperator(Left)) &&
-        (Left.isOneOf(tok::r_square, tok::r_paren, tok::r_brace,
-                      tok::numeric_constant) ||
-         Keywords.isWordLike(Left))) {
-      return false;
-    }
-    // Don't add spaces in imports like `import foo::*;`.
-    if ((Right.is(tok::star) && Left.is(tok::coloncolon)) ||
-        (Left.is(tok::star) && Right.is(tok::semi))) {
-      return false;
-    }
-    // Add space in attribute like `(* ASYNC_REG = "TRUE" *)`.
-    if (Left.endsSequence(tok::star, tok::l_paren) && Right.is(tok::identifier))
-      return true;
-    // Add space before drive strength like in `wire (strong1, pull0)`.
-    if (Right.is(tok::l_paren) && Right.is(TT_VerilogStrength))
-      return true;
-    // Don't add space in a streaming concatenation like `{>>{j}}`.
-    if ((Left.is(tok::l_brace) &&
-         Right.isOneOf(tok::lessless, tok::greatergreater)) ||
-        (Left.endsSequence(tok::lessless, tok::l_brace) ||
-         Left.endsSequence(tok::greatergreater, tok::l_brace))) {
-      return false;
-    }
-  }
-  if (Left.is(TT_ImplicitStringLiteral))
+  
+  
+    if (Left.is(TT_ImplicitStringLiteral))
     return Right.hasWhitespaceBefore();
-  if (Line.Type == LT_ObjCMethodDecl) {
-    if (Left.is(TT_ObjCMethodSpecifier))
-      return true;
-    if (Left.is(tok::r_paren) && Left.isNot(TT_AttributeRParen) &&
-        canBeObjCSelectorComponent(Right)) {
-      // Don't space between ')' and <id> or ')' and 'new'. 'new' is not a
-      // keyword in Objective-C, and '+ (instancetype)new;' is a standard class
-      // method declaration.
-      return false;
+
+    if (Line.Type == LT_ObjCMethodDecl) {
+        if (Left.is(TT_ObjCMethodSpecifier))
+            return true;
+        if (Left.is(tok::r_paren) && Left.isNot(TT_AttributeRParen) &&
+            canBeObjCSelectorComponent(Right)) {
+            // Don't space between ')' and <id> or ')' and 'new'. 'new' is not a
+            // keyword in Objective-C, and '+ (instancetype)new;' is a standard class
+            // method declaration.
+            return false;
+        }
     }
-  }
-  if (Line.Type == LT_ObjCProperty &&
-      (Right.is(tok::equal) || Left.is(tok::equal))) {
+  
+    if (Line.Type == LT_ObjCProperty &&
+        (Right.is(tok::equal) || Left.is(tok::equal))) {
     return false;
-  }
+    }
 
-  if (Right.is(TT_TrailingReturnArrow) || Left.is(TT_TrailingReturnArrow))
+    if (Right.is(TT_TrailingReturnArrow) || Left.is(TT_TrailingReturnArrow))
     return true;
 
-  if (Left.is(tok::comma) && Right.isNot(TT_OverloadedOperatorLParen) &&
-      // In an unexpanded macro call we only find the parentheses and commas
-      // in a line; the commas and closing parenthesis do not require a space.
-      (Left.Children.empty() || !Left.MacroParent)) {
+    if (Left.is(tok::comma) && Right.isNot(TT_OverloadedOperatorLParen) &&
+        // In an unexpanded macro call we only find the parentheses and commas
+        // in a line; the commas and closing parenthesis do not require a space.
+        (Left.Children.empty() || !Left.MacroParent)) {
     return true;
-  }
-  if (Right.is(tok::comma))
+    }
+
+    if (Right.is(tok::comma))
     return false;
-  if (Right.is(TT_ObjCBlockLParen))
+
+    if (Right.is(TT_ObjCBlockLParen))
     return true;
-  if (Right.is(TT_CtorInitializerColon))
+
+    if (Right.is(TT_CtorInitializerColon))
     return Style.SpaceBeforeCtorInitializerColon;
-  if (Right.is(TT_InheritanceColon) && !Style.SpaceBeforeInheritanceColon)
+
+    if (Right.is(TT_InheritanceColon) && !Style.SpaceBeforeInheritanceColon)
     return false;
-  if (Right.is(TT_RangeBasedForLoopColon) &&
-      !Style.SpaceBeforeRangeBasedForLoopColon) {
+
+    if (Right.is(TT_RangeBasedForLoopColon) &&
+        !Style.SpaceBeforeRangeBasedForLoopColon) {
     return false;
-  }
-  if (Left.is(TT_BitFieldColon)) {
+    }
+
+    if (Left.is(TT_BitFieldColon)) {
     return Style.BitFieldColonSpacing == FormatStyle::BFCS_Both ||
-           Style.BitFieldColonSpacing == FormatStyle::BFCS_After;
-  }
+            Style.BitFieldColonSpacing == FormatStyle::BFCS_After;
+    }
+
   if (Right.is(tok::colon)) {
     if (Right.is(TT_CaseLabelColon))
       return Style.SpaceBeforeCaseColon;
@@ -6085,158 +6103,159 @@ static bool isAllmanLambdaBrace(const FormatToken &Tok) {
 
 bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
                                      const FormatToken &Right) const {
-  const FormatToken &Left = *Right.Previous;
-  if (Right.NewlinesBefore > 1 && Style.MaxEmptyLinesToKeep > 0)
+
+    const FormatToken &Left = *Right.Previous;
+    if (Right.NewlinesBefore > 1 && Style.MaxEmptyLinesToKeep > 0)
     return true;
 
-  if (Style.isCSharp()) {
-    if (Left.is(TT_FatArrow) && Right.is(tok::l_brace) &&
-        Style.BraceWrapping.AfterFunction) {
-      return true;
-    }
-    if (Right.is(TT_CSharpNamedArgumentColon) ||
-        Left.is(TT_CSharpNamedArgumentColon)) {
-      return false;
-    }
-    if (Right.is(TT_CSharpGenericTypeConstraint))
-      return true;
-    if (Right.Next && Right.Next->is(TT_FatArrow) &&
-        (Right.is(tok::numeric_constant) ||
-         (Right.is(tok::identifier) && Right.TokenText == "_"))) {
-      return true;
-    }
-
-    // Break after C# [...] and before public/protected/private/internal.
-    if (Left.is(TT_AttributeSquare) && Left.is(tok::r_square) &&
-        (Right.isAccessSpecifier(/*ColonRequired=*/false) ||
-         Right.is(Keywords.kw_internal))) {
-      return true;
-    }
-    // Break between ] and [ but only when there are really 2 attributes.
-    if (Left.is(TT_AttributeSquare) && Right.is(TT_AttributeSquare) &&
-        Left.is(tok::r_square) && Right.is(tok::l_square)) {
-      return true;
-    }
-
-  } 
-  else if (Style.isJavaScript()) {
-    // FIXME: This might apply to other languages and token kinds.
-    if (Right.is(tok::string_literal) && Left.is(tok::plus) && Left.Previous &&
-        Left.Previous->is(tok::string_literal)) {
-      return true;
-    }
-    if (Left.is(TT_DictLiteral) && Left.is(tok::l_brace) && Line.Level == 0 &&
-        Left.Previous && Left.Previous->is(tok::equal) &&
-        Line.First->isOneOf(tok::identifier, Keywords.kw_import, tok::kw_export,
-                            tok::kw_const) &&
-        // kw_var/kw_let are pseudo-tokens that are tok::identifier, so match
-        // above.
-        !Line.First->isOneOf(Keywords.kw_var, Keywords.kw_let)) {
-      // Object literals on the top level of a file are treated as "enum-style".
-      // Each key/value pair is put on a separate line, instead of bin-packing.
-      return true;
-    }
-    if (Left.is(tok::l_brace) && Line.Level == 0 &&
-        (Line.startsWith(tok::kw_enum) ||
-         Line.startsWith(tok::kw_const, tok::kw_enum) ||
-         Line.startsWith(tok::kw_export, tok::kw_enum) ||
-         Line.startsWith(tok::kw_export, tok::kw_const, tok::kw_enum))) {
-      // JavaScript top-level enum key/value pairs are put on separate lines
-      // instead of bin-packing.
-      return true;
-    }
-    if (Right.is(tok::r_brace) && Left.is(tok::l_brace) && Left.Previous &&
-        Left.Previous->is(TT_FatArrow)) {
-      // JS arrow function (=> {...}).
-      switch (Style.AllowShortLambdasOnASingleLine) {
-      case FormatStyle::SLS_All:
-        return false;
-      case FormatStyle::SLS_None:
-        return true;
-      case FormatStyle::SLS_Empty:
-        return !Left.Children.empty();
-      case FormatStyle::SLS_Inline:
-        // allow one-lining inline (e.g. in function call args) and empty arrow
-        // functions.
-        return (Left.NestingLevel == 0 && Line.Level == 0) &&
-               !Left.Children.empty();
-      }
-      llvm_unreachable("Unknown FormatStyle::ShortLambdaStyle enum");
-    }
-
-    if (Right.is(tok::r_brace) && Left.is(tok::l_brace) &&
-        !Left.Children.empty()) {
-      // Support AllowShortFunctionsOnASingleLine for JavaScript.
-      return Style.AllowShortFunctionsOnASingleLine == FormatStyle::SFS_None ||
-             Style.AllowShortFunctionsOnASingleLine == FormatStyle::SFS_Empty ||
-             (Left.NestingLevel == 0 && Line.Level == 0 &&
-              Style.AllowShortFunctionsOnASingleLine &
-                  FormatStyle::SFS_InlineOnly);
-    }
-  } 
-  else if (Style.Language == FormatStyle::LK_Java) {
-    if (Right.is(tok::plus) && Left.is(tok::string_literal) && Right.Next &&
-        Right.Next->is(tok::string_literal)) {
-      return true;
-    }
-  } 
-  else if (Style.isVerilog()) {
-    // Break between assignments.
-    if (Left.is(TT_VerilogAssignComma))
-      return true;
-    // Break between ports of different types.
-    if (Left.is(TT_VerilogTypeComma))
-      return true;
-    // Break between ports in a module instantiation and after the parameter
-    // list.
-    if (Style.VerilogBreakBetweenInstancePorts &&
-        (Left.is(TT_VerilogInstancePortComma) ||
-         (Left.is(tok::r_paren) && Keywords.isVerilogIdentifier(Right) &&
-          Left.MatchingParen &&
-          Left.MatchingParen->is(TT_VerilogInstancePortLParen)))) {
-      return true;
-    }
-    // Break after labels. In Verilog labels don't have the 'case' keyword, so
-    // it is hard to identify them in UnwrappedLineParser.
-    if (!Keywords.isVerilogBegin(Right) && Keywords.isVerilogEndOfLabel(Left))
-      return true;
-  } 
-  else if (Style.BreakAdjacentStringLiterals &&
-             (Style.isCpp() || Style.isProto() ||
-              Style.Language == FormatStyle::LK_TableGen)) {
-    if (Left.isStringLiteral() && Right.isStringLiteral())
-      return true;
-  }
-
-  // Basic JSON newline processing.
-  if (Style.isJson()) {
-    // Always break after a JSON record opener.
-    // {
-    // }
-    if (Left.is(TT_DictLiteral) && Left.is(tok::l_brace))
-      return true;
-    // Always break after a JSON array opener based on BreakArrays.
-    if ((Left.is(TT_ArrayInitializerLSquare) && Left.is(tok::l_square) &&
-         Right.isNot(tok::r_square)) ||
-        Left.is(tok::comma)) {
-      if (Right.is(tok::l_brace))
-        return true;
-      // scan to the right if an we see an object or an array inside
-      // then break.
-      for (const auto *Tok = &Right; Tok; Tok = Tok->Next) {
-        if (Tok->isOneOf(tok::l_brace, tok::l_square))
+    if (Style.isCSharp()) {
+        if (Left.is(TT_FatArrow) && Right.is(tok::l_brace) &&
+            Style.BraceWrapping.AfterFunction) {
           return true;
-        if (Tok->isOneOf(tok::r_brace, tok::r_square))
-          break;
-      }
-      return Style.BreakArrays;
-    }
-  }
+        }
+        if (Right.is(TT_CSharpNamedArgumentColon) ||
+            Left.is(TT_CSharpNamedArgumentColon)) {
+          return false;
+        }
+        if (Right.is(TT_CSharpGenericTypeConstraint))
+          return true;
+        if (Right.Next && Right.Next->is(TT_FatArrow) &&
+            (Right.is(tok::numeric_constant) ||
+             (Right.is(tok::identifier) && Right.TokenText == "_"))) {
+          return true;
+        }
 
-  if (Line.startsWith(tok::kw_asm) && Right.is(TT_InlineASMColon) &&
-      Style.BreakBeforeInlineASMColon == FormatStyle::BBIAS_Always) {
-    return true;
-  }
+        // Break after C# [...] and before public/protected/private/internal.
+        if (Left.is(TT_AttributeSquare) && Left.is(tok::r_square) &&
+            (Right.isAccessSpecifier(/*ColonRequired=*/false) ||
+             Right.is(Keywords.kw_internal))) {
+          return true;
+        }
+        // Break between ] and [ but only when there are really 2 attributes.
+        if (Left.is(TT_AttributeSquare) && Right.is(TT_AttributeSquare) &&
+            Left.is(tok::r_square) && Right.is(tok::l_square)) {
+          return true;
+        }
+
+    } 
+    else if (Style.isJavaScript()) {
+        // FIXME: This might apply to other languages and token kinds.
+        if (Right.is(tok::string_literal) && Left.is(tok::plus) && Left.Previous &&
+            Left.Previous->is(tok::string_literal)) {
+            return true;
+        }
+        if (Left.is(TT_DictLiteral) && Left.is(tok::l_brace) && Line.Level == 0 &&
+            Left.Previous && Left.Previous->is(tok::equal) &&
+            Line.First->isOneOf(tok::identifier, Keywords.kw_import, tok::kw_export,
+                                tok::kw_const) &&
+            // kw_var/kw_let are pseudo-tokens that are tok::identifier, so match
+            // above.
+            !Line.First->isOneOf(Keywords.kw_var, Keywords.kw_let)) {
+            // Object literals on the top level of a file are treated as "enum-style".
+            // Each key/value pair is put on a separate line, instead of bin-packing.
+            return true;
+        }
+        if (Left.is(tok::l_brace) && Line.Level == 0 &&
+            (Line.startsWith(tok::kw_enum) ||
+                Line.startsWith(tok::kw_const, tok::kw_enum) ||
+                Line.startsWith(tok::kw_export, tok::kw_enum) ||
+                Line.startsWith(tok::kw_export, tok::kw_const, tok::kw_enum))) {
+            // JavaScript top-level enum key/value pairs are put on separate lines
+            // instead of bin-packing.
+            return true;
+        }
+        if (Right.is(tok::r_brace) && Left.is(tok::l_brace) && Left.Previous &&
+            Left.Previous->is(TT_FatArrow)) {
+            // JS arrow function (=> {...}).
+            switch (Style.AllowShortLambdasOnASingleLine) {
+            case FormatStyle::SLS_All:
+            return false;
+            case FormatStyle::SLS_None:
+            return true;
+            case FormatStyle::SLS_Empty:
+            return !Left.Children.empty();
+            case FormatStyle::SLS_Inline:
+            // allow one-lining inline (e.g. in function call args) and empty arrow
+            // functions.
+            return (Left.NestingLevel == 0 && Line.Level == 0) &&
+                    !Left.Children.empty();
+            }
+            llvm_unreachable("Unknown FormatStyle::ShortLambdaStyle enum");
+        }
+
+        if (Right.is(tok::r_brace) && Left.is(tok::l_brace) &&
+            !Left.Children.empty()) {
+            // Support AllowShortFunctionsOnASingleLine for JavaScript.
+            return Style.AllowShortFunctionsOnASingleLine == FormatStyle::SFS_None ||
+                    Style.AllowShortFunctionsOnASingleLine == FormatStyle::SFS_Empty ||
+                    (Left.NestingLevel == 0 && Line.Level == 0 &&
+                    Style.AllowShortFunctionsOnASingleLine &
+                        FormatStyle::SFS_InlineOnly);
+        }
+    } 
+    else if (Style.Language == FormatStyle::LK_Java) {
+        if (Right.is(tok::plus) && Left.is(tok::string_literal) && Right.Next &&
+            Right.Next->is(tok::string_literal)) {
+            return true;
+        }
+    } 
+    else if (Style.isVerilog()) {
+        // Break between assignments.
+        if (Left.is(TT_VerilogAssignComma))
+            return true;
+        // Break between ports of different types.
+        if (Left.is(TT_VerilogTypeComma))
+            return true;
+        // Break between ports in a module instantiation and after the parameter
+        // list.
+        if (Style.VerilogBreakBetweenInstancePorts &&
+            (Left.is(TT_VerilogInstancePortComma) ||
+                (Left.is(tok::r_paren) && Keywords.isVerilogIdentifier(Right) &&
+                Left.MatchingParen &&
+                Left.MatchingParen->is(TT_VerilogInstancePortLParen)))) {
+            return true;
+        }
+        // Break after labels. In Verilog labels don't have the 'case' keyword, so
+        // it is hard to identify them in UnwrappedLineParser.
+        if (!Keywords.isVerilogBegin(Right) && Keywords.isVerilogEndOfLabel(Left))
+            return true;
+        } 
+    else if (Style.BreakAdjacentStringLiterals &&
+                    (Style.isCpp() || Style.isProto() ||
+                    Style.Language == FormatStyle::LK_TableGen)) {
+        if (Left.isStringLiteral() && Right.isStringLiteral())
+            return true;
+    }
+
+    // Basic JSON newline processing.
+    if (Style.isJson()) {
+        // Always break after a JSON record opener.
+        // {
+        // }
+        if (Left.is(TT_DictLiteral) && Left.is(tok::l_brace))
+            return true;
+        // Always break after a JSON array opener based on BreakArrays.
+        if ((Left.is(TT_ArrayInitializerLSquare) && Left.is(tok::l_square) &&
+                Right.isNot(tok::r_square)) ||
+            Left.is(tok::comma)) {
+            if (Right.is(tok::l_brace))
+            return true;
+            // scan to the right if an we see an object or an array inside
+            // then break.
+            for (const auto *Tok = &Right; Tok; Tok = Tok->Next) {
+            if (Tok->isOneOf(tok::l_brace, tok::l_square))
+                return true;
+            if (Tok->isOneOf(tok::r_brace, tok::r_square))
+                break;
+            }
+            return Style.BreakArrays;
+        }
+    }
+
+    if (Line.startsWith(tok::kw_asm) && Right.is(TT_InlineASMColon) &&
+        Style.BreakBeforeInlineASMColon == FormatStyle::BBIAS_Always) {
+        return true;
+    }
 
   // If the last token before a '}', ']', or ')' is a comma or a trailing
   // comment, the intention is to insert a line break after it in order to make
