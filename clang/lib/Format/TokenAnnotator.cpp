@@ -4244,6 +4244,8 @@ void TokenAnnotator::MarkDatatype (FormatToken* token) {
             else {
                 start_tok->IsVariableNameWithDatatype = true;
             }
+
+            token->MyLine->IsDeclaration = true;
             break;
         }
     }

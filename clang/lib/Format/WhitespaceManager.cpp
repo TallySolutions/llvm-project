@@ -1609,10 +1609,12 @@ void WhitespaceManager::columnarizeNoDiscardOrNoReturnOrTemplate() {
 
       FormatToken * aftertemplate = (FormatToken * )MyTok->walkTemplateBlockInClassDecl();
       bool isfrienddecl = aftertemplate ? aftertemplate->is(tok::kw_friend) : false;
+      bool isusing = aftertemplate ? aftertemplate->is(tok::kw_using) : false;
 
       if (MyTok->is(tok::kw_template) &&
           MyTok->MyLine &&
-          (MyTok->MyLine->MightBeFunctionDecl || isfrienddecl) &&
+          (MyTok->MyLine->MustBeDeclaration || isfrienddecl) &&
+          !isusing &&
           MyTok->MyLine->endsWith(tok::semi) &&
           MyTok->LbraceCount > 0 &&
           MyTok->LparenCount == 0 &&
@@ -1620,6 +1622,7 @@ void WhitespaceManager::columnarizeNoDiscardOrNoReturnOrTemplate() {
 
         spacecount = 0;
         bracecount = 0;
+        
         
         Changes[i].StartOfTokenColumn = isfrienddecl ? 8 : MaxSpecifierTabs * Style.TabWidth;
         Changes[i].Spaces = isfrienddecl ? 8 : MaxSpecifierTabs * Style.TabWidth;;

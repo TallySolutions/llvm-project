@@ -191,6 +191,7 @@ public:
   bool MustBeDeclaration;
   bool MightBeFunctionDecl;
   bool IsMultiVariableDeclStmt;
+  bool IsDeclaration = false;
 
   /// \c True if this line contains a macro call for which an expansion exists.
   bool ContainsMacroCall = false;
