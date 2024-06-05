@@ -763,6 +763,38 @@ namespace {
                     "static          bool                PrivateOpenSocket                           (TWSocketElem * pSockElem) noexcept;\r\n"
                     "}",
                     Style);
+
+        verifyFormat("class TArray {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "                    template <bool IsCharLimit>\r\n"
+                    "                                                    TArray  ();\r\n"
+                    "\r\n"
+                    "                    template <bool IsCharLimit>\r\n"
+                    "static  constexpr   TWInternalCalcNumCharOrByteFunc sTWInternalCalcNumChar;\r\n"
+                    "\r\n"
+                    "                    Type                            Array   ();\r\n"
+                    "\r\n"
+                    "    template <bool IsCharLimit>\r\n"
+                    "    using a = h (*) ();\r\n"
+                    "};",
+                    "class TArray {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "                template <bool IsCharLimit>\r\n"
+                    "                                                        TArray  ();\r\n"
+                    "\r\n"
+                    "                template <bool IsCharLimit>\r\n"
+                    "static  constexpr       TWInternalCalcNumCharOrByteFunc sTWInternalCalcNumChar;\r\n"
+                    "\r\n"
+                    "                        Type                            Array   ();\r\n"
+                    "\r\n"
+                    "        template <bool IsCharLimit>\r\n"
+                    "    using a = h (*) ();\r\n"
+                    "};",
+                    Style);
     }
 
     TEST_F(TWClangFormatTest, nodiscard) {
