@@ -3014,8 +3014,8 @@ size_t WhitespaceManager::adjectIdentifierLocation (unsigned pad, unsigned idx, 
 
     if (isConstructor)
         Changes[idx].Spaces = MaxSpecifierTabs * Style.TabWidth + MaxDatatypeLen + pad - (Changes[idx - 1].Spaces + Changes[idx - 1].TokenLength);
-    else if (tkn->Previous && tkn->Previous->is(tok::kw_const) && tkn->Next && tkn->Next->TokenText.equals(lparanthese))
-        Changes[idx].Spaces += pad;// > lenDiff ? pad - lenDiff : lenDiff - pad;
+    // else if (tkn->Previous && tkn->Previous->is(tok::kw_const) && tkn->Next && tkn->Next->TokenText.equals(lparanthese))
+    //     Changes[idx].Spaces += pad;// > lenDiff ? pad - lenDiff : lenDiff - pad;
     else
         Changes[idx].Spaces = pad + lenDiff;
 

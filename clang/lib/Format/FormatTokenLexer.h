@@ -53,6 +53,7 @@ private:
 
   bool tryMergeLessLess();
   bool tryMergeGreaterGreater();
+  bool tryMergeLsquareRsquare();
   bool tryMergeNSStringLiteral();
   bool tryMergeJSPrivateIdentifier();
   bool tryMergeCSharpStringLiteral();

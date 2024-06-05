@@ -934,9 +934,12 @@ public:
       if (MyPrev != nullptr && MyPrev->isPointerOrRefOrDatatypeOrKeyword())
           return isFunctionAndNextLeftParen();
       else if (MyPrev != nullptr) {
-          return (isFunctionAndNextLeftParen() &&
-              ((MyPrev->is(tok::kw_const) && MyPrev->Previous && MyPrev->Previous->isPointerOrRef()) ||
-              (MyPrev->is(tok::kw_operator))));
+          if (isFunctionAndNextLeftParen() && ((MyPrev->is(tok::kw_const) && MyPrev->Previous && MyPrev->Previous->isPointerOrRef()) || (MyPrev->is(tok::kw_operator))))
+            return true;
+
+          // const FormatToken* MyPrevPrev = MyPrev->getPreviousNonComment();
+          // if (is(tok::r_square) && MyPrev->is(tok::l_square) && MyPrevPrev && MyPrevPrev->is(tok::kw_operator))
+          //     return true;
       }
 
       return false;

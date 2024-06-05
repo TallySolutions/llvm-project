@@ -112,6 +112,8 @@ void FormatTokenLexer::tryMergePreviousTokens() {
     return;
   if (tryMergeGreaterGreater())
     return;
+  if (tryMergeLsquareRsquare())
+      return;
   if (tryMergeForEach())
     return;
   if (Style.isCpp() && tryTransformTryUsageForC())
@@ -543,6 +545,30 @@ bool FormatTokenLexer::tryMergeGreaterGreater() {
 
   First[0]->Tok.setKind(tok::greatergreater);
   First[0]->TokenText = ">>";
+  First[0]->ColumnWidth += 1;
+  Tokens.erase(Tokens.end() - 1);
+  return true;
+}
+
+bool FormatTokenLexer::tryMergeLsquareRsquare() {
+  // Merge kw_operator,greater,greater into kw_operator,greatergreater.
+  if (Tokens.size() < 2)
+    return false;
+
+  auto First = Tokens.end() - 2;
+  if (First[0]->isNot(tok::l_square) || First[1]->isNot(tok::r_square))
+    return false;
+
+  // Only merge if there currently is no whitespace between the first two ">".
+  if (First[1]->hasWhitespaceBefore())
+    return false;
+
+  auto Tok = Tokens.size() > 2 ? First[-1] : nullptr;
+  if (Tok && Tok->isNot(tok::kw_operator))
+    return false;
+
+  First[0]->Tok.setKind(tok::lsquare_rsquare);
+  First[0]->TokenText = "[]";
   First[0]->ColumnWidth += 1;
   Tokens.erase(Tokens.end() - 1);
   return true;

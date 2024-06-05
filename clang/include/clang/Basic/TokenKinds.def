@@ -236,6 +236,7 @@ PUNCTUATOR(comma,               ",")
 PUNCTUATOR(hash,                "#")
 PUNCTUATOR(hashhash,            "##")
 PUNCTUATOR(hashat,              "#@")
+PUNCTUATOR(lsquare_rsquare,     "[]")
 
 // C++ Support
 PUNCTUATOR(periodstar,          ".*")

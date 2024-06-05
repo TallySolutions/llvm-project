@@ -674,6 +674,74 @@ namespace {
                     "static              CVPtr   const *                   PrivateGetConstContainerPtrAddress                  (const TWLadderedWIPBuffer * pWIPBuf) noexcept;\r\n"
                     "};",
                     Style);
+
+        verifyFormat("class TArray {\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "        constexpr                           TArray                              (const TArray<Type, Len, DesignatorType> & pValues) noexcept;\r\n"
+                    "static                      CVPddtr * const PrivateGetConstContainerPtrAddress  (const TWLadderedWIPBuffer * pWIPBuf) noexcept;\r\n"
+                    "static                      Bype            PrivateGetConstLeafLadder           (const BufType * pLadderBuf, TUInt32 pID) noexcept;\r\n"
+                    "        constexpr   const   Type * const    GetRawArray                         () const noexcept;\r\n"
+                    "};",
+                    "class TArray {\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "        constexpr                           TArray          (const TArray<Type, Len, DesignatorType> & pValues) noexcept;\r\n"
+                    "static          CVPddtr * const PrivateGetConstContainerPtrAddress  (const TWLadderedWIPBuffer * pWIPBuf) noexcept;\r\n"
+                    "static          Bype            PrivateGetConstLeafLadder           (const BufType * pLadderBuf, TUInt32 pID) noexcept;\r\n"
+                    "constexpr   const   Type * const     GetRawArray     () const noexcept;\r\n"
+                    "};",
+                    Style);
+    }
+
+    TEST_F(TWClangFormatTest, OperatorAlignmentInClassScope) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("class TArray {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "        constexpr                           TArray          (const TArray<Type, Len, DesignatorType> & pValues) noexcept;\r\n"
+                    "                            a               b               ();\r\n"
+                    "                            Type            operator>>      (const TUInt64 pNdx) const noexcept;\r\n"
+                    "                            Type            operator[]      (const TUInt64 pNdx) const noexcept;\r\n"
+                    "        constexpr   const   Type            operator>=      (const TUInt64 pNdx) const noexcept;\r\n"
+                    "        constexpr           Type &          operator[]      (const TUInt64 pNdx) noexcept;\r\n"
+                    "        constexpr           Type &          operator<<      (const TUInt64 pNdx) noexcept;\r\n"
+                    "        constexpr           Type * const    operator%=      (const TUInt64 pNdx) noexcept;\r\n"
+                    "\r\n"
+                    "                            ss              TsssssssArray   (const TDesignatedElem<DesignatorType, Type> (&pArray)[Len]) noexcept;\r\n"
+                    "\r\n"
+                    "        constexpr   const   Type * const    GetRawArray     () const noexcept;\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "                            Type            vArray[Len];\r\n"
+                    "};",
+                    "class TArray {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "        constexpr                           TArray              (const TArray<Type, Len, DesignatorType> & pValues) noexcept;\r\n"
+                    "                            a                   b                   ();\r\n"
+                    "                            Type            operator>>          (const TUInt64 pNdx) const noexcept;\r\n"
+                    "                            Type                operator[]              (const TUInt64 pNdx) const noexcept;\r\n"
+                    "        constexpr   const       Type            operator>=      (const TUInt64 pNdx) const noexcept;\r\n"
+                    "        constexpr           Type &          operator[]      (const TUInt64 pNdx) noexcept;\r\n"
+                    "        constexpr           Type &          operator<<      (const TUInt64 pNdx) noexcept;\r\n"
+                    "        constexpr           Type * const         operator%=      (const TUInt64 pNdx) noexcept;\r\n"
+                    "\r\n"
+                    "                            ss              TsssssssArray   (const TDesignatedElem<DesignatorType, Type> (&pArray)[Len]) noexcept;\r\n"
+                    "\r\n"
+                    "        constexpr   const   Type * const     GetRawArray     () const noexcept;\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "                            Type            vArray[Len];\r\n"
+                    "};",
+                    Style);
     }
 
     TEST_F(TWClangFormatTest, Template) {

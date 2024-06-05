@@ -4056,6 +4056,7 @@ void TokenAnnotator::walkLine1(AnnotatedLine& Line) {
 bool TokenAnnotator::CheckIfDatatype (FormatToken* token) {
 
     FormatToken * Next = token;
+    FormatToken * start_tok;
     bool isDT = false;
     int j=0;
     bool has_const = false;
@@ -4093,9 +4094,10 @@ bool TokenAnnotator::CheckIfDatatype (FormatToken* token) {
         *   skip if, else, while, do, switch etc.
         */
 
-        if (!Next->isDatatypeInner())
+        if (!(Next->isDatatypeInner() or Next->is(tok::kw_operator)))
             break;
 
+        start_tok = Next;
         Next = Next->Next;
 
         /*
@@ -4143,6 +4145,8 @@ bool TokenAnnotator::CheckIfDatatype (FormatToken* token) {
         */
 
         if (j == 2) {
+            if (start_tok->is(tok::kw_operator))
+                isDT =true;
             if (has_const or Next->is(tok::l_paren) or Next->is(tok::semi) or Next->is(tok::l_square) or Next->is(tok::colon))
                 isDT=true;
             break;
