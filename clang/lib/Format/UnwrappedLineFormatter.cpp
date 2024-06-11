@@ -1042,9 +1042,11 @@ protected:
   /// break or don't break.
   bool formatChildren(LineState &State, bool NewLine, bool DryRun,
                       unsigned &Penalty) {
+
     const FormatToken *LBrace = State.NextToken->getPreviousNonComment();
     bool HasLBrace = LBrace && LBrace->is(tok::l_brace) && LBrace->is(BK_Block);
     FormatToken &Previous = *State.NextToken->Previous;
+
     if (Previous.Children.size() == 0 || (!HasLBrace && !LBrace->MacroParent)) {
       // The previous token does not open a block. Nothing to do. We don't
       // assert so that we can simply call this function for all tokens.
@@ -1129,8 +1131,11 @@ public:
           Indenter->mustBreak(State) ||
           (Indenter->canBreak(State) && State.NextToken->NewlinesBefore > 0);
       unsigned Penalty = 0;
-      formatChildren(State, Newline, /*DryRun=*/false, Penalty);
-      Indenter->addTokenToState(State, Newline, /*DryRun=*/false);
+      // formatChildren(State, Newline, /*DryRun=*/false, Penalty);
+      // Indenter->addTokenToState(State, Newline, /*DryRun=*/false);
+
+      formatChildren(State, /*NewLine=*/false, DryRun, Penalty);
+      Indenter->addTokenToState(State, /*Newline=*/State.NextToken->MustBreakBefore, DryRun);
     }
     return 0;
   }

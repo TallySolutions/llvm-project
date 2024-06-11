@@ -779,7 +779,8 @@ AlignTokenSequence(unsigned Start, unsigned End, unsigned Column, F&& Matches,
     for (unsigned i = Start; i != End; ++i) {
         if (!IgnoreScope && ScopeStack.size() != 0 &&
             Changes[i].indentAndNestingLevel() <
-            Changes[ScopeStack.back()].indentAndNestingLevel())
+            Changes[ScopeStack.back()].indentAndNestingLevel() &&
+            !Changes[i].Tok->is(tok::comment))
             ScopeStack.pop_back();
 
         // Compare current token to previous non-comment token to ensure whether
@@ -913,7 +914,8 @@ static unsigned AlignTokens(const FormatStyle& Style, F&& Matches,
 
     unsigned i = StartAt;
     for (unsigned e = Changes.size(); i != e; ++i) {
-        if (Changes[i].indentAndNestingLevel() < IndentAndNestingLevel)
+        auto curIndentAndNestingLevel = Changes[i].indentAndNestingLevel();
+        if (curIndentAndNestingLevel < IndentAndNestingLevel)
             break;
 
         if (Changes[i].NewlinesBefore != 0) {

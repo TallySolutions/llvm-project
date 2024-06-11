@@ -1297,8 +1297,10 @@ public:
   // pointer or reference or data type, and following token being a
   // semi-colon, equals, square left bracket, comma, parens, braces or colon.
   bool isVarNameInDecl() const {
+
       if (isMemberVarNameInDecl())
           return false;
+      return IsVariableNameWithDatatype;
 
       bool prevOk = false;
       bool nextOk = false;
@@ -1319,7 +1321,7 @@ public:
               else if (MyPrev->IsInterimBeforeName) {
                   while (MyPrev && MyPrev->IsInterimBeforeName)
                       MyPrev = MyPrev->getPreviousNonComment();
-
+      
                   // Also support pointer-to-pointer i.e. two or more levels of indirection. Suffices to stop after two-level checking.
                   if (MyPrev && (MyPrev->isDatatype() || MyPrev->isPointerOrRef())) {
                       prevOk = true;

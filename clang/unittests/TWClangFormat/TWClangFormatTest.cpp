@@ -274,7 +274,6 @@ namespace {
                     "    a<int, int>->b ();\r\n"
                     "    a            = b ();\r\n"
                     "    a::b<int>::c = 5;\r\n"
-                    "    int a = (int) b;\r\n"
                     "}",
                     "void\r\n"
                     "TWThreadMgr ()\r\n"
@@ -305,7 +304,6 @@ namespace {
                     "    a<int, int>->b      ();\r\n"
                     "         a   =   b();\r\n"
                     "          a::b<int>::c    =5  ;\r\n"
-                    "      int a = (int)b;\r\n"
                     "}",
                     Style);
 
@@ -332,6 +330,26 @@ namespace {
                     "            TWUtils::MemCpy         (InternalGetRawValue () + pNdxToInsert + parmlen, InternalGetRawValue () + pNdxToInsert, (TUInt64) (shiftlen * TWConst (TWString)::sTWUnicodeCharSize));\r\n"
                     "\r\n"
                     "        TWUtils::   MemCpy (InternalGetRawValue () + pNdxToInsert, pString->GetRawString (), (TUInt64) (parmlen * TWConst (TWString)::sTWUnicodeCharSize));\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("void\r\n"
+                    "f ()\r\n"
+                    "{\r\n"
+                    "        struct a    vb;\r\n"
+                    "        int         g   {};\r\n"
+                    "        const int   g = 3;\r\n"
+                    "\r\n"
+                    "    g = 4;\r\n"
+                    "}",
+                    "void\r\n"
+                    "f ()\r\n"
+                    "{\r\n"
+                    "     struct a    vb;\r\n"
+                    "    int g   {};\r\n"
+                    "        const int   g = 3;\r\n"
+                    "\r\n"
+                    "    g=4;\r\n"
                     "}",
                     Style);
     }
@@ -1215,6 +1233,20 @@ namespace {
                     "static          TWContent ** CreateFromBuffer    (const TWDataBuffer * pBuffer,\r\n"
                     "                                                             bool pIsReconstructCopy);\r\n"
                     "};",
+                    Style);
+
+        verifyFormat("CHECKTRUE (((porttypeindex != eTWNPPortType::Int::TWNP_FINDTWIN) && (porttypeindex != eTWNPPortType::Int::TWNP_SIMPLE) &&\r\n"
+                    "            (porttypeindex != eTWNPPortType::Int::TWNP_REGULAR)));\r\n"
+                    "\r\n"
+                    "TWArrayMasterMgr::GetArrayMgr (eTWEngineID::COMM_IO)->InitializeArray<TWSocketElem, true> (eTWCommSubSystemArrayType::Int::SOCKET,\r\n"
+                    "                                                                                           TWConst (TWCoreCommDataMgr)::sMinSocketEleminSocketElemArray,\r\n"
+                    "                                                                                           TWConst (TWCoreCommDataMgr)::sMaxSocketEleminSocketElemArray);",
+                    "CHECKTRUE (((porttypeindex != eTWNPPortType::Int::TWNP_FINDTWIN) && (porttypeindex != eTWNPPortType::Int::TWNP_SIMPLE) &&\r\n"
+                    "                (porttypeindex != eTWNPPortType::Int::TWNP_REGULAR)));\r\n"
+                    "\r\n"
+                    "TWArrayMasterMgr::GetArrayMgr (eTWEngineID::COMM_IO)->InitializeArray<TWSocketElem, true> (eTWCommSubSystemArrayType::Int::SOCKET,\r\n"
+                    "                                                                                        TWConst (TWCoreCommDataMgr)::sMinSocketEleminSocketElemArray,\r\n"
+                    "                                                                                    TWConst (TWCoreCommDataMgr)::sMaxSocketEleminSocketElemArray);",
                     Style);
         }
 
