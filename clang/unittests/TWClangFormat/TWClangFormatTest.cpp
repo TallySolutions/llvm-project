@@ -813,6 +813,28 @@ namespace {
                     "    using a = h (*) ();\r\n"
                     "};",
                     Style);
+
+        verifyFormat("class TWFormat {\r\n"
+                    "\r\n"
+                    "                template <class NumType>\r\n"
+                    "static          void    InternalNumberToStr     (TWSString & pOutStr, const NumType & pNumber, TUInt8 pPrecision) noexcept;\r\n"
+                    "\r\n"
+                    "static          void    InternalIPv6BytesToStr  (TWSString & pOutStr, const TUInt8 * pAddressBytes, TUInt16 pPort, TUInt32 pScopeID) noexcept;\r\n"
+                    "\r\n"
+                    "                template <typename Type, class IntType, bool IsTWNumber>\r\n"
+                    "static          bool    InternalStrToUnsigned   (const Type * pStrVal, IntType * pOutInt, TUInt64 * pOutMantissa = nullptr) noexcept;\r\n"
+                    "};",
+                    "class TWFormat {\r\n"
+                    "\r\n"
+                    "                template <class NumType>\r\n"
+                    "static void    InternalNumberToStr     (TWSString & pOutStr, const NumType & pNumber, TUInt8 pPrecision) noexcept;\r\n"
+                    "\r\n"
+                    "static          void    InternalIPv6BytesToStr  (TWSString & pOutStr, const TUInt8 * pAddressBytes, TUInt16 pPort, TUInt32 pScopeID) noexcept;\r\n"
+                    "\r\n"
+                    "                template <typename Type, class IntType, bool IsTWNumber>\r\n"
+                    "static bool            InternalStrToUnsigned   (const Type * pStrVal, IntType * pOutInt, TUInt64 * pOutMantissa = nullptr) noexcept;\r\n"
+                    "};",
+                    Style);
     }
 
     TEST_F(TWClangFormatTest, nodiscard) {
@@ -963,6 +985,38 @@ namespace {
                     "static          TWThreadExitFunc            sExitThreadFunc;\r\n"
                     "};",
                     Style);
+    }
+
+    TEST_F(TWClangFormatTest, DatatypeWithScopeAlignmentInClassScope) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("class TWBaseLRUData {\r\n"
+                    "\r\n"
+                    "                TUInt64             vRoot     : 8;                            // into which 'cache' of the 'list of caches' is this inserted - since that is round-robin mode\r\n"
+                    "                eTWLRUCache::Enum   vPriority : eTWLRUCache::SizeBits;        // 2 bits\r\n"
+                    "                a::b::c<int>        vPriority;\r\n"
+                    "                a::b::c<int> *      vPriority;\r\n"
+                    "\r\n"
+                    "                TUInt64             vRoot       ();        // into which 'cache' of the 'list of caches' is this inserted - since that is round-robin mode\r\n"
+                    "                eTWLRUCache::Enum   vPriority   ();\r\n"
+                    "                a::b::c<int>        vPriority   ();\r\n"
+                    "                a::b::c<int> *      vPriority   ();\r\n"
+                    "};",
+                    "class TWBaseLRUData {\r\n"
+                    "\r\n"
+                    "            TUInt64                 vRoot     : 8;                            // into which 'cache' of the 'list of caches' is this inserted - since that is round-robin mode\r\n"
+                    "            eTWLRUCache::Enum       vPriority : eTWLRUCache::SizeBits;          // 2 bits\r\n"
+                    "        a::b::c<int>            vPriority;\r\n"
+                    "                a::b::c<int> *       vPriority;\r\n"
+                    "\r\n"
+                    "            TUInt64             vRoot       ();        // into which 'cache' of the 'list of caches' is this inserted - since that is round-robin mode\r\n"
+                    "            eTWLRUCache::Enum   vPriority   ();\r\n"
+                    "                a::b::c<int>        vPriority   ();\r\n"
+                    "            a::b::c<int> *      vPriority   ();\r\n"
+                    "};",
+                    Style);
+
     }
 
     TEST_F(TWClangFormatTest, Comments) {

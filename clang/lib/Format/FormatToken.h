@@ -929,6 +929,7 @@ public:
 
   // TALLY: Helper function
   bool isFunctionNameAndPrevIsPointerOrRefOrDatatype() const {
+      return IsFunctionName;
       FormatToken * MyPrev = getPreviousNonComment();
 
       if (MyPrev != nullptr && MyPrev->isPointerOrRefOrDatatypeOrKeyword())
@@ -1080,7 +1081,9 @@ public:
       bool rc =
           isFunctionNameAndPrevIsPointerOrRefOrDatatype() ||
           isConstructor() ||
-          (MyPrev && MyPrev->isDestructor());
+          (MyPrev && MyPrev->isDestructor()) ||
+          is(tok::kw_operator) || 
+          (MyPrev && MyPrev->is(tok::kw_operator));
       return rc;
   }
 

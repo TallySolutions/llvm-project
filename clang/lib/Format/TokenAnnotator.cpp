@@ -3906,26 +3906,30 @@ namespace {
                     if (MyToken->is(tok::kw_class)) {
                         if (MyToken->Previous && MyToken->Previous->is(tok::kw_friend) == true ||
                             (Line.endsWith(tok::semi) && !(Line.endsWith(tok::semi, tok::r_brace))) ||
-                            LArrowCount > 0)
-                            continue;
-
-                        IsClassScope = true;
-
-                        const FormatToken* Next = MyToken->getNextNonComment();
-                        if (Next) {
-
-                            if (Next->is(tok::kw_alignas) && Next->Next && Next->Next->is(tok::l_paren)
-                                && Next->Next->Next && Next->Next->Next->Next && Next->Next->Next->Next->is(tok::r_paren)
-                                && Next->Next->Next->Next->Next) {
-
-                                Next = Next->Next->Next->Next->Next;
-                                if (Next->Next && (Next->Next->isOneOf(tok::l_brace, tok::colon) ||
-                                    (Next->Next->is(tok::kw___is_final) && Next->Next->Next && Next->Next->Next->isOneOf(tok::l_brace, tok::colon))))
-                                    Next = Next;
-                            }
-
-                            ClassScopeName = Next->TokenText;
+                            LArrowCount > 0) {
+                            ;
                         }
+                        else {
+
+                            IsClassScope = true;
+
+                            const FormatToken* Next = MyToken->getNextNonComment();
+                            if (Next) {
+
+                                if (Next->is(tok::kw_alignas) && Next->Next && Next->Next->is(tok::l_paren)
+                                    && Next->Next->Next && Next->Next->Next->Next && Next->Next->Next->Next->is(tok::r_paren)
+                                    && Next->Next->Next->Next->Next) {
+
+                                    Next = Next->Next->Next->Next->Next;
+                                    if (Next->Next && (Next->Next->isOneOf(tok::l_brace, tok::colon) ||
+                                        (Next->Next->is(tok::kw___is_final) && Next->Next->Next && Next->Next->Next->isOneOf(tok::l_brace, tok::colon))))
+                                        Next = Next;
+                                }
+
+                                ClassScopeName = Next->TokenText;
+                            }
+                        }
+
                     }
                     if (MyToken->is(tok::kw_struct)) {
                         IsStructScope = true;
@@ -4318,6 +4322,8 @@ namespace {
             */
 
             while (Next and Next->is(tok::coloncolon)) {
+                Next->IsInterimBeforeName = true;
+                Next->Next->IsInterimBeforeName = true;
                 Next = Next->Next->Next;
             }
 
