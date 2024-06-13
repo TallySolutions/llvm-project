@@ -1650,7 +1650,7 @@ static auto computeNewlines(const AnnotatedLine &Line,
   // TALLY: Add extra new line at the end of a double-indented block
   if (PreviousLine && PreviousLine->IsDoubleIndented &&
       !Line.IsDoubleIndented && RootToken.isNot(tok::comment) &&
-      RootToken.NewlinesBefore == 1) {
+      Newlines == 1) {
 
     if (!((PreviousLine->First->IsClassScope ||
            PreviousLine->First->IsStructScope) &&

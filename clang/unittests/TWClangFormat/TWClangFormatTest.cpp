@@ -163,6 +163,61 @@ namespace {
 
     }
 
+    TEST_F(TWClangFormatTest, AddOrRemoveNewLines) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("void\r\n"
+                    "d ()\r\n"
+                    "{\r\n"
+                    "        int a;\r\n"
+                    "\r\n"
+                    "}",
+                    "void\r\n"
+                    "d ()\r\n"
+                    "{\r\n"
+                    "        int a;\r\n"
+                    "\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("void\r\n"
+                    "d ()\r\n"
+                    "{\r\n"
+                    "        int a;\r\n"
+                    "\r\n"
+                    "}",
+                    "void\r\n"
+                    "d ()\r\n"
+                    "{\r\n"
+                    "        int a;\r\n"
+                    "}",
+                    Style);
+
+        verifyFormat("void\r\n"
+                    "d ()\r\n"
+                    "{\r\n"
+                    "        int a;\r\n"
+                    "\r\n"
+                    "}",
+                    "void\r\n"
+                    "d ()\r\n"
+                    "{\r\n"
+                    "        int a;}",
+                    Style);
+
+        verifyFormat("class A {\r\n"
+                    "                int a;\r\n"
+                    "};",
+                    "class A {\r\n"
+                    "                int a;\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "};",
+                    Style);
+
+    }
+
     TEST_F(TWClangFormatTest, StaticMemberVariableDefinition) {
     
     FormatStyle Style = getTWStyle();
