@@ -1142,11 +1142,16 @@ void WhitespaceManager::alignConsecutiveAssignmentsOnEqualsAcrossSections() {
             if (&C != &Changes.back() && (&C + 1)->NewlinesBefore > 0)
                 return false;
 
-            return
-                C.Tok->is(tok::equal) &&
+            bool isValid = C.Tok->is(tok::equal) &&
                 C.Tok->HasSemiColonInLine &&
-                C.Tok->getPreviousNonComment() != nullptr &&
-                C.Tok->getPreviousNonComment()->isVarNameInDecl();
+                C.Tok->isPrevBeforeInterimsVarWithDatatype();
+
+            // bool isValid = C.Tok->is(tok::equal) &&
+            //     C.Tok->HasSemiColonInLine &&
+            //     C.Tok->getPreviousNonComment() != nullptr &&
+            //     C.Tok->getPreviousNonComment()->isVarNameInDecl();
+
+            return isValid;
         },
         Changes, /*IgnoreScope=*/false, /*IgnoreCommas=*/false, /*StartAt=*/0,
             /*MaxNewlinesBeforeSectionBreak=*/2, /*NonMatchingLineBreaksSection=*/false,
@@ -1170,10 +1175,12 @@ void WhitespaceManager::alignConsecutiveAssignmentsOnEqualsWithinSection() {
             if (&C != &Changes.back() && (&C + 1)->NewlinesBefore > 0)
                 return false;
 
-            return
-                C.Tok->is(tok::equal) &&
+            bool isValid = C.Tok->is(tok::equal) &&
                 C.Tok->HasSemiColonInLine &&
                 C.Tok->isPrevBeforeInterimsVarWithoutDatatype();
+
+            return isValid;
+                
         },
         Changes, /*IgnoreScope=*/false, /*IgnoreCommas=*/false, /*StartAt=*/0,
             /*MaxNewlinesBeforeSectionBreak=*/1, /*NonMatchingLineBreaksSection=*/true,

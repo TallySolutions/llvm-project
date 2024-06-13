@@ -1088,6 +1088,15 @@ public:
   }
 
   // TALLY: Helper function
+  bool isPrevBeforeInterimsVarWithDatatype() const {
+      const FormatToken* MyPrev = getPreviousNonComment();
+      while (MyPrev && !MyPrev->IsVariableNameWithDatatype) {
+          MyPrev = MyPrev->getPreviousNonComment();
+      }
+      return (MyPrev && MyPrev->IsVariableNameWithDatatype);
+  }
+
+  // TALLY: Helper function
   bool isPrevBeforeInterimsVarWithoutDatatype() const {
       const FormatToken* MyPrev = getPreviousNonComment();
       while (MyPrev && !MyPrev->IsVariableNameWithoutDatatype) {

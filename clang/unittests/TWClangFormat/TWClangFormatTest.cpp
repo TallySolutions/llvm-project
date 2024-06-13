@@ -409,6 +409,53 @@ namespace {
                     Style);
     }
 
+    TEST_F(TWClangFormatTest, EqualToAlignment) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("jclass              TWOSInternalEnvironCommIO::sTWOSUDPSocketKernelAndroidKClass       = nullptr;\r\n"
+                    "jclass              TWOSInternalEnvironCommIO::sTWOSTCPClientSocketKernelAndroidKClass = nullptr;\r\n"
+                    "jclass              TWOSInternalEnvironCommIO::sTWOSTCPServerSocketKernelAndroidKClass = nullptr;\r\n"
+                    "jclass              TWOSInternalEnvironCommIO::sTWOSSelectorKernelAndroidKClass        = nullptr;\r\n"
+                    "jclass              TWOSInternalEnvironCommIO::sTWOSEnvironOperationAndroidKClass      = nullptr;\r\n"
+                    "\r\n"
+                    "jclass              TWOSInternalEnvironCommIO    = nullptr;\r\n"
+                    "jclass              TWOSInternalEnvironCommIOddd = nullptr;\r\n"
+                    "jclass              TWOSInternalEnvironCommIOddd = nullptr;\r\n"
+                    "\r\n"
+                    "a::b::c<int>        d        = nullptr;\r\n"
+                    "int                 gg       = 0;\r\n"
+                    "const int           abc      = 0;\r\n"
+                    "int *               ab       = nullptr;\r\n"
+                    "int **              apoe     = nullptr;\r\n"
+                    "vector<vector<int>> a        =  {};\r\n"
+                    "a::b                csfadfsd = 0;\r\n"
+                    "a::b::c             d        = 0;\r\n"
+                    "int                 a[3]     = {1, 2, 3};\r\n"
+                    "const int           a        = 0;",
+                    "jclass  TWOSInternalEnvironCommIO::sTWOSUDPSocketKernelAndroidKClass       = nullptr;\r\n"
+                    "jclass  TWOSInternalEnvironCommIO::sTWOSTCPClientSocketKernelAndroidKClass = nullptr;\r\n"
+                    "jclass          TWOSInternalEnvironCommIO::sTWOSTCPServerSocketKernelAndroidKClass = nullptr;\r\n"
+                    "jclass          TWOSInternalEnvironCommIO::sTWOSSelectorKernelAndroidKClass        = nullptr;\r\n"
+                    "jclass          TWOSInternalEnvironCommIO::sTWOSEnvironOperationAndroidKClass      = nullptr;\r\n"
+                    "\r\n"
+                    "jclass      TWOSInternalEnvironCommIO    = nullptr;\r\n"
+                    "jclass              TWOSInternalEnvironCommIOddd = nullptr;\r\n"
+                    "jclass              TWOSInternalEnvironCommIOddd = nullptr;\r\n"
+                    "\r\n"
+                    "a::b::c<int>        d       = nullptr;\r\n"
+                    "int             gg       = 0;\r\n"
+                    "const int           abc         = 0;\r\n"
+                    "int *           ab          = nullptr;\r\n"
+                    "int **              apoe        = nullptr;\r\n"
+                    "vector<vector<int>> a       =  {};\r\n"
+                    "a::b                csfadfsd    = 0;\r\n"
+                    "a::b::c         d       = 0;\r\n"
+                    "int             a[3]    = {1, 2, 3};\r\n"
+                    "const int       a       = 0;",
+                    Style);
+    }
+
     TEST_F(TWClangFormatTest, ArrowOperator) {
     
     FormatStyle Style = getTWStyle();
