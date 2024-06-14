@@ -6428,7 +6428,8 @@ namespace {
         *    b,
         *    c);
         */
-        if (Right.NewlinesBefore >= 1 && Right.HasUnescapedNewline && Right.Previous && Right.Previous->isOneOf(tok::comma, tok::ampamp, tok::pipepipe)) {
+        if (Right.NewlinesBefore >= 1 && Right.HasUnescapedNewline && Right.Previous 
+            && Right.Previous->isOneOf(tok::comma, tok::ampamp, tok::pipepipe, tok::caret, tok::plus, tok::minus)) {
             return true;
         }
 
