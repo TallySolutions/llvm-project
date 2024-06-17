@@ -4200,7 +4200,8 @@ namespace {
             * then skip it
             */
 
-            if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->is(tok::amp) || Next->is(tok::kw_struct)) {
+            if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->is(tok::amp) || Next->is(tok::kw_struct) ||
+                Next->TokenText == "CALLBACK" || Next->TokenText == "STDMETHODCALLTYPE") {
                 if (Next->is(tok::kw_const))
                     has_const = true;
                 Next = Next->Next;
@@ -4299,7 +4300,8 @@ namespace {
             * then skip it
             */
 
-            if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->is(tok::amp) || Next->is(tok::kw_struct)) {
+            if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->is(tok::amp) || Next->is(tok::kw_struct) ||
+                Next->TokenText == "CALLBACK" || Next->TokenText == "STDMETHODCALLTYPE") {
                 if (j == 1)
                     Next->IsInterimBeforeName = true;
                 Next = Next->Next;
