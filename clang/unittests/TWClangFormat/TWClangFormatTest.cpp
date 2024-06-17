@@ -1406,6 +1406,80 @@ namespace {
                     Style);
         }
 
+    TEST_F(TWClangFormatTest, SpecialMacros) {
+    
+    FormatStyle Style = getTWStyle();
+
+        verifyFormat("class TWLanguageProfileNotifyKernelWindows : public ITfLanguageProfileNotifySink {\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "                                                    TWLanguageProfileNotifyKernelWindows    ();\r\n"
+                    "                                                   ~TWLanguageProfileNotifyKernelWindows    ();\r\n"
+                    "\r\n"
+                    "                void                                SetHandleInputLangChangeFunc            (TWOSHandleInputLangChangeEventFunc pFunc) noexcept;\r\n"
+                    "\r\n"
+                    "                HRESULT STDMETHODCALLTYPE           OnLanguageChange                        (LANGID pLanguageId, __RPC__out BOOL * pAccept) override;\r\n"
+                    "                HRESULT STDMETHODCALLTYPE           OnLanguageChanged                       () override;\r\n"
+                    "                HRESULT STDMETHODCALLTYPE           QueryInterface                          (REFIID pIID, void ** pObject) override;\r\n"
+                    "                ULONG STDMETHODCALLTYPE             AddRef                                  () override;\r\n"
+                    "                ULONG STDMETHODCALLTYPE             Release                                 () override;\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "                TWOSHandleInputLangChangeEventFunc  vHandleInputLangChangeFunc;\r\n"
+                    "                ITfInputProcessorProfiles *         vInputProcessorProfiles;\r\n"
+                    "                ITfSource *                         vSource;\r\n"
+                    "                DWORD                               vCookie;\r\n"
+                    "                TUInt32                             vReserved;\r\n"
+                    "};",
+
+                    "class TWLanguageProfileNotifyKernelWindows : public ITfLanguageProfileNotifySink {\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "                                                    TWLanguageProfileNotifyKernelWindows    ();\r\n"
+                    "                                            ~TWLanguageProfileNotifyKernelWindows    ();\r\n"
+                    "\r\n"
+                    "                void                        SetHandleInputLangChangeFunc            (TWOSHandleInputLangChangeEventFunc pFunc) noexcept;\r\n"
+                    "\r\n"
+                    "           HRESULT STDMETHODCALLTYPE           OnLanguageChange                        (LANGID pLanguageId, __RPC__out BOOL * pAccept) override;\r\n"
+                    "            HRESULT     STDMETHODCALLTYPE           OnLanguageChanged                       () override;\r\n"
+                    "        HRESULT         STDMETHODCALLTYPE   QueryInterface                          (REFIID pIID, void ** pObject) override;\r\n"
+                    "                ULONG STDMETHODCALLTYPE             AddRef                                  () override;\r\n"
+                    "                ULONG STDMETHODCALLTYPE             Release                                 () override;\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "    private:\r\n"
+                    "\r\n"
+                    "        TWOSHandleInputLangChangeEventFunc  vHandleInputLangChangeFunc;\r\n"
+                    "                ITfInputProcessorProfiles *         vInputProcessorProfiles;\r\n"
+                    "        ITfSource *                         vSource;\r\n"
+                    "        DWORD                               vCookie;\r\n"
+                    "        TUInt32                             vReserved;\r\n"
+                    "};",
+                    Style);
+
+        verifyFormat("class TWOSStaticsKernelWindows {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "static          LRESULT CALLBACK    WindowCallBackHandler       (HWND pHwnd, UINT pMessageCode, WPARAM pWParam, LPARAM pLParam);\r\n"
+                    "static          BOOL CALLBACK       CloseVisibleWindowProc      (HWND pHwnd, LPARAM pLParam);\r\n"
+                    "static          hstring             ConvertTWStringtoHstring    (TWSString & pString);\r\n"
+                    "};",
+
+                    "class TWOSStaticsKernelWindows {\r\n"
+                    "\r\n"
+                    "    public:\r\n"
+                    "\r\n"
+                    "static      LRESULT CALLBACK                    WindowCallBackHandler                   (HWND pHwnd, UINT pMessageCode, WPARAM pWParam, LPARAM pLParam);\r\n"
+                    "static      BOOL        CALLBACK                       CloseVisibleWindowProc          (HWND pHwnd, LPARAM pLParam);\r\n"
+                    "static          hstring                      ConvertTWStringtoHstring                (TWSString & pString);\r\n"
+                    "};",
+                    Style);
+
+        }
+
 } // namespace
 } // namespace test
 } // namespace format
