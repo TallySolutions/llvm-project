@@ -1455,6 +1455,22 @@ void UnwrappedLineParser::parseStructuralElement(
   }
 
   // Tokens that only make sense at the beginning of a line.
+
+    // TALLY: handeling TW_TEST_CLASS
+    if (FormatTok->TokenText == "TW_TEST_CLASS") {
+        nextToken();
+        if (true && FormatTok->is(tok::l_paren)) {
+            parseParens();
+        }
+        unsigned _AddLevels = 1;
+        bool _ManageWhitesmithsBraces = false;
+        parseBlock(/*MustBeDeclaration=*/true, _AddLevels, /*MunchSemi=*/true,
+                    /*KeepBraces=*/true, /*IfKind=*/nullptr,
+                    _ManageWhitesmithsBraces);
+    
+        addUnwrappedLine(_AddLevels > 0 ? LineLevel::Remove : LineLevel::Keep);
+        return;
+    }
   switch (FormatTok->Tok.getKind()) {
   case tok::kw_asm:
     nextToken();
