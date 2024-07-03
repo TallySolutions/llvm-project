@@ -1952,24 +1952,27 @@ static void AlignMatchingTokenSequence(
   EndOfSequence = 0;
 }
 
-void WhitespaceManager::alignConsecutiveMacros() {
-  if (!Style.AlignConsecutiveMacros.Enabled)
-    return;
+bool AlignMacrosMatches (int i, SmallVector<WhitespaceManager::Change, 16> &Changes) {
 
-  auto AlignMacrosMatches = [](const Change &C) {
-    const FormatToken *Current = C.Tok;
+    if (i==0) return false;
+
+    const FormatToken *Current = Changes[i].Tok;
+    const FormatToken *Previous = Changes[i-1].Tok;
+
+    if (Changes[i].NewlinesBefore > 0 and !Changes[i].ContinuesPPDirective) {
+        return false;
+    }
+
     unsigned SpacesRequiredBefore = 1;
-
-    if (Current->SpacesRequiredBefore == 0 || !Current->Previous)
+    if (Current->SpacesRequiredBefore == 0)
       return false;
 
-    Current = Current->Previous;
+    Current = Previous;
 
     // If token is a ")", skip over the parameter list, to the
     // token that precedes the "("
-    if (Current->is(tok::r_paren) && Current->MatchingParen) {
-      Current = Current->MatchingParen->Previous;
-      SpacesRequiredBefore = 0;
+    if (Previous->is(tok::r_paren) && Previous->MatchingParen) {
+        Current = Previous->MatchingParen->Previous;
     }
 
     if (!Current || Current->isNot(tok::identifier))
@@ -1978,12 +1981,62 @@ void WhitespaceManager::alignConsecutiveMacros() {
     if (!Current->Previous || Current->Previous->isNot(tok::pp_define))
       return false;
 
-    // For a macro function, 0 spaces are required between the
-    // identifier and the lparen that opens the parameter list.
-    // For a simple macro, 1 space is required between the
-    // identifier and the first token of the defined value.
-    return Current->Next->SpacesRequiredBefore == SpacesRequiredBefore;
-  };
+    return true;
+}
+
+static void AlignMacroDefinition(
+    unsigned &StartOfSequence, unsigned &EndOfSequence, unsigned &MinColumn,
+    SmallVector<WhitespaceManager::Change, 16> &Changes) {
+  if (StartOfSequence > 0 && StartOfSequence < EndOfSequence) {
+    bool FoundMatchOnLine = false;
+    int Shift = 0;
+
+    for (unsigned I = StartOfSequence; I != EndOfSequence; ++I) {
+
+      if (Changes[I].ContinuesPPDirective and Changes[I].NewlinesBefore > 0) {
+          Changes[I].Spaces += Shift;
+      }
+      if (Changes[I].NewlinesBefore > 0 and !Changes[I].ContinuesPPDirective) {
+        Shift = 0;
+        FoundMatchOnLine = false;
+      }
+
+      // If this is the first matching token to be aligned, remember by how many
+      // spaces it has to be shifted, so the rest of the changes on the line are
+      // shifted by the same amount.
+      if (!FoundMatchOnLine && AlignMacrosMatches(I, Changes)) {
+        FoundMatchOnLine = true;
+        Shift = MinColumn - Changes[I].StartOfTokenColumn;
+        Changes[I].Spaces += Shift;
+
+        /*
+        * If macro definition starts from next line
+        * then start it from same line.
+        */
+        if (Changes[I].NewlinesBefore!=0) {
+            Changes[I].NewlinesBefore = 0;
+            Changes[I].Spaces -= Changes[I-1].StartOfTokenColumn + Changes[I-1].TokenLength;
+
+            // TODO: correct StartOfTokenColumn of this line.
+        }
+      }
+
+      assert(Shift >= 0);
+      Changes[I].StartOfTokenColumn += Shift;
+      if (I + 1 != Changes.size())
+        Changes[I + 1].PreviousEndOfTokenColumn += Shift;
+    }
+  }
+
+  MinColumn = 0;
+  StartOfSequence = 0;
+  EndOfSequence = 0;
+}
+
+
+void WhitespaceManager::alignConsecutiveMacros() {
+  if (!Style.AlignConsecutiveMacros.Enabled)
+    return;
 
   unsigned MinColumn = 0;
 
@@ -1991,55 +2044,65 @@ void WhitespaceManager::alignConsecutiveMacros() {
   unsigned StartOfSequence = 0;
   unsigned EndOfSequence = 0;
 
-  // Whether a matching token has been found on the current line.
-  bool FoundMatchOnLine = false;
+  bool MatchFound = false;
 
   // Whether the current line consists only of comments
   bool LineIsComment = true;
+  bool LineIsDefineMacro = true;
+
+  // Sometimes #define definition span multiple line.
+  // lines with definition of #define.
+  bool LineContinuesPPDirective = true;
 
   unsigned I = 0;
   for (unsigned E = Changes.size(); I != E; ++I) {
-    if (Changes[I].NewlinesBefore != 0) {
+
+    if (Changes[I].NewlinesBefore != 0 or Changes[I].Tok->IsFirst) {
       EndOfSequence = I;
 
-      // Whether to break the alignment sequence because of an empty line.
-      bool EmptyLineBreak = (Changes[I].NewlinesBefore > 1) &&
-                            !Style.AlignConsecutiveMacros.AcrossEmptyLines;
-
-      // Whether to break the alignment sequence because of a line without a
-      // match.
-      bool NoMatchBreak =
-          !FoundMatchOnLine &&
-          !(LineIsComment && Style.AlignConsecutiveMacros.AcrossComments);
-
-      if (EmptyLineBreak || NoMatchBreak) {
-        AlignMatchingTokenSequence(StartOfSequence, EndOfSequence, MinColumn,
-                                   AlignMacrosMatches, Changes);
+      /*
+      * If previous line dont have #define
+      * and previous line is not comment
+      * and dont have definition (multiline definition)
+      * then break sequence.
+      */
+      if (MatchFound and !LineIsDefineMacro and !(LineIsComment or LineContinuesPPDirective)) {
+        AlignMacroDefinition(StartOfSequence, EndOfSequence, MinColumn,
+                                   Changes);
+        MatchFound = false;
       }
 
       // A new line starts, re-initialize line status tracking bools.
-      FoundMatchOnLine = false;
       LineIsComment = true;
+      LineContinuesPPDirective = true;
+      LineIsDefineMacro = false;
+
+      if (Changes[I].Tok->is(tok::hash) and I+1<Changes.size() and Changes[I+1].Tok->is(tok::pp_define))
+          LineIsDefineMacro = true;
     }
+
+    if (Changes[I].ContinuesPPDirective==false)
+      LineContinuesPPDirective = false;
 
     if (Changes[I].Tok->isNot(tok::comment))
       LineIsComment = false;
 
-    if (!AlignMacrosMatches(Changes[I]))
+    if (!AlignMacrosMatches(I, Changes))
       continue;
 
-    FoundMatchOnLine = true;
+    MatchFound = true;
 
     if (StartOfSequence == 0)
       StartOfSequence = I;
 
     unsigned ChangeMinColumn = Changes[I].StartOfTokenColumn;
+    ChangeMinColumn = std::max(Changes[I-1].StartOfTokenColumn + Changes[I-1].TokenLength + 1, ChangeMinColumn);
     MinColumn = std::max(MinColumn, ChangeMinColumn);
   }
 
   EndOfSequence = I;
-  AlignMatchingTokenSequence(StartOfSequence, EndOfSequence, MinColumn,
-                             AlignMacrosMatches, Changes);
+  AlignMacroDefinition(StartOfSequence, EndOfSequence, MinColumn,
+                              Changes);
 }
 
 void WhitespaceManager::alignConsecutiveAssignments() {

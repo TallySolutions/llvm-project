@@ -124,9 +124,14 @@ namespace {
     public:
         AnnotatingParser(const FormatStyle& Style, AnnotatedLine& Line,
             const AdditionalKeywords& Keywords,
-            SmallVector<ScopeType>& Scopes)
+            SmallVector<ScopeType>& Scopes, 
+            vector<int>& scopeCount,
+              bool& IsStructScope,
+              bool& IsUnionScope,
+              bool& IsClassScope)
             : Style(Style), Line(Line), CurrentToken(Line.First), AutoFound(false),
-            Keywords(Keywords), Scopes(Scopes) {
+            Keywords(Keywords), Scopes(Scopes), scopeCount(scopeCount), 
+            IsStructScope(IsStructScope), IsUnionScope(IsUnionScope), IsClassScope(IsClassScope) {
             Contexts.push_back(Context(tok::unknown, 1, /*IsExpression=*/false));
             resetTokenMetadata();
         }
@@ -138,9 +143,11 @@ namespace {
             case TT_LambdaLBrace:
                 return ST_Function;
             case TT_ClassLBrace:
-            case TT_StructLBrace:
-            case TT_UnionLBrace:
                 return ST_Class;
+            case TT_StructLBrace:
+                return ST_Struct;
+            case TT_UnionLBrace:
+                return ST_Union;
             default:
                 return ST_Other;
             }
@@ -1572,6 +1579,25 @@ namespace {
                         Previous->setType(TT_SelectorName);
                 }
                 Scopes.push_back(getScopeType(*Tok));
+
+                
+                switch (Scopes.back()) {
+                case ScopeType::ST_Class :
+                    IsClassScope = true;
+                    scopeCount[ScopeType::ST_Class]++;
+                    break;
+                case ScopeType::ST_Union :
+                    IsUnionScope = true;
+                    scopeCount[ScopeType::ST_Union]++;
+                    break;
+                case ScopeType::ST_Struct :
+                    IsStructScope = true;
+                    scopeCount[ScopeType::ST_Struct]++;
+                    break;
+                default:
+                    break;
+                }
+                
                 if (!parseBrace())
                     return false;
                 break;
@@ -1606,8 +1632,29 @@ namespace {
                 return false;
             case tok::r_brace:
                 // Don't pop scope when encountering unbalanced r_brace.
-                if (!Scopes.empty())
+                if (!Scopes.empty()){
+
+                    ScopeType scope = Scopes.back();
                     Scopes.pop_back();
+                    scopeCount[scope]--;
+                    
+                    if (scopeCount[scope]==0) {
+                        switch (scope) {
+                    
+                            case ScopeType::ST_Class :
+                                IsClassScope = false;
+                                break;
+                            case ScopeType::ST_Struct :
+                                IsStructScope = false;
+                                break;
+                            case ScopeType::ST_Union :
+                                IsUnionScope = false;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
                 // Lines can start with '}'.
                 if (Tok->Previous)
                     return false;
@@ -1780,6 +1827,11 @@ namespace {
             default:
                 break;
             }
+
+            Tok->IsClassScope = IsClassScope;
+            Tok->IsUnionScope = IsUnionScope;
+            Tok->IsStructScope = IsStructScope;
+            
             return true;
         }
 
@@ -3119,6 +3171,16 @@ namespace {
 
         SmallVector<ScopeType>& Scopes;
 
+        vector<int>& scopeCount;
+          /// TALLY: If a given token is part of a struct scope
+          bool& IsStructScope;
+
+          /// TALLY: If a given token is part of a union scope
+          bool& IsUnionScope;
+
+          /// TALLY: If a given token is part of a class scope
+          bool& IsClassScope;
+
         // Set of "<" tokens that do not open a template parameter list. If parseAngle
         // determines that a specific token can't be a template opener, it will make
         // same decision irrespective of the decisions for tokens leading up to it.
@@ -3655,7 +3717,8 @@ namespace {
     }
 
     void TokenAnnotator::annotate(AnnotatedLine& Line) {
-        AnnotatingParser Parser(Style, Line, Keywords, Scopes);
+        AnnotatingParser Parser(Style, Line, Keywords, Scopes, scopeCount, 
+            IsStructScope, IsUnionScope, IsClassScope);
         Line.Type = Parser.parseLine();
 
         for (auto& Child : Line.Children)
@@ -3885,6 +3948,7 @@ namespace {
             }
         }
 
+
         // TALLY: Walk the line in forward direction
         FormatToken* MyToken = Line.First;
         if (MyToken) {
@@ -3933,6 +3997,7 @@ namespace {
                     }
                     if (MyToken->is(tok::kw_struct)) {
                         IsStructScope = true;
+
                         const FormatToken* Next = MyToken->getNextNonComment();
                         if (Next) {
                             if (Next->is(tok::kw_alignas) && Next->Next && Next->Next->is(tok::l_paren)
@@ -3990,31 +4055,62 @@ namespace {
                         IsFunctionDefinitionLine = false;
                 }
                 else if (MyToken->is(tok::r_brace)) {
-                    RbraceCount++;
 
+                    // Scope scope = scopeStack.back().first;
+                    // scopeStack.pop_back();
+                    // scopeCount[scope]--;
+                    // LbraceCount--;
+                    // 
+                    // if (scopeCount[scope]==0) {
+                    //     switch (scope) {
+                    // 
+                    //         case CLASS:
+                    //             IsClassScope = false;
+                    //             break;
+                    //         case STRUCT:
+                    //             IsStructScope = false;
+                    //             break;
+                    //         case UNION:
+                    //             IsUnionScope = false;
+                    //             break;
+                    //         case ENUM:
+                    //             IsEnumScope = false;
+                    //             break;
+                    //         case OTHER:
+                    //             break;
+                    //         default:
+                    //             break;
+                    //     }
+                    // }
+                    // 
+                    // if (LbraceCount == 0 && IsInFunctionDefinition) {
+                    //     IsInFunctionDefinition = false;
+                    // }
+
+                    RbraceCount++;
                     if (RbraceCount == LbraceCount) {
                         LbraceCount = 0;
                         RbraceCount = 0;
-
+                    
                         if (IsClassScope) {
                             IsClassScope = false;
                         }
-
+                    
                         if (IsStructScope) {
                             IsStructScope = false;
                         }
-
+                    
                         if (IsUnionScope) {
                             IsUnionScope = false;
                         }
-
+                    
                         if (IsEnumScope) {
                             MyToken->IsEnumScope = IsEnumScope;
                             if (MyToken->Next && MyToken->Next->is(tok::semi))
                                 MyToken->Next->IsEnumScope = true;
                             IsEnumScope = false;
                         }
-
+                    
                         if (IsInFunctionDefinition) {
                             IsInFunctionDefinition = false;
                         }
@@ -4119,10 +4215,10 @@ namespace {
                 MyToken->MyLine = &Line;
                 MyToken->HasSemiColonInLine = hasSemiColon;
                 MyToken->IsPPConditionalInclusionScope = IsPPConditionalInclusionScope;
-                MyToken->IsClassScope = IsClassScope;
-                MyToken->IsStructScope = IsStructScope;
-                MyToken->IsUnionScope = IsUnionScope;
-                MyToken->IsEnumScope = MyToken->IsEnumScope ? true : IsEnumScope;
+                // MyToken->IsClassScope = IsClassScope;
+                // MyToken->IsStructScope = IsStructScope;
+                // MyToken->IsUnionScope = IsUnionScope;
+                // MyToken->IsEnumScope = MyToken->IsEnumScope ? true : IsEnumScope;
                 MyToken->StructScopeName = StructScopeName;
                 MyToken->ClassScopeName = ClassScopeName;
                 MyToken->LbraceCount = LbraceCount;

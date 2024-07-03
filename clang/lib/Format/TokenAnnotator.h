@@ -41,6 +41,8 @@ enum LineType {
 enum ScopeType {
   // Contained in class declaration/definition.
   ST_Class,
+  ST_Struct,
+  ST_Union,
   // Contained within function definition.
   ST_Function,
   // Contained within other scope block (loop, if/else, etc).
@@ -363,6 +365,7 @@ private:
 
   const AdditionalKeywords &Keywords;
 
+  vector<int> scopeCount = vector<int>(6, 0);
   SmallVector<ScopeType> Scopes;
   // TALLY: mark MACRO, is populated only when it is defined in same file it is used.
   static constexpr char STRDEFINETEXT[] {'d','e','f','i','n','e','\0'};
