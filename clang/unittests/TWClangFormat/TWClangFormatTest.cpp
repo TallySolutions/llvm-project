@@ -68,6 +68,50 @@ namespace {
                     "    ;\r\n"
                     "}",
                     Style);
+
+        verifyFormat("void\r\n"
+                    "f ()\r\n"
+                    "{\r\n"
+                    "    if (true) {\r\n"
+                    "\r\n"
+                    "        a = 9;\r\n"
+                    "    }\r\n"
+                    "\r\n"
+                    "    if constexpr (TWTraits::IsBaseOf<TWSString, StringType> ())\r\n"
+                    "        newstr = Buffer;\r\n"
+                    "    else if constexpr (TWTraits::AreSameOR<StringType, TPString8Ptr, TPString16Ptr> ()) {\r\n"
+                    "\r\n"
+                    "            TWSString   str;\r\n"
+                    "\r\n"
+                    "        str.SetString (pString);\r\n"
+                    "\r\n"
+                    "        newstr = buffer;\r\n"
+                    "    } else\r\n"
+                    "        newstr = buffer;\r\n"
+                    "}",
+                    "void\r\n"
+                    "f ()\r\n"
+                    "{\r\n"
+                    "    if (true) {\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "        a = 9;\r\n"
+                    "    }\r\n"
+                    "\r\n"
+                    "    if constexpr (TWTraits::IsBaseOf<TWSString, StringType> ()) newstr = Buffer;\r\n"
+                    "    else if constexpr (TWTraits::AreSameOR<StringType, TPString8Ptr, TPString16Ptr> ()) {\r\n"
+                    "\r\n"
+                    "\r\n"
+                    "            TWSString   str;\r\n"
+                    "\r\n"
+                    "        str.SetString (pString);\r\n"
+                    "\r\n"
+                    "        newstr = buffer;\r\n"
+                    "    } else\r\n"
+                    "        newstr = buffer;\r\n"
+                    "}",
+                    Style);
     }
 
     TEST_F(TWClangFormatTest, SpaceInInitializerList) {
@@ -936,6 +980,40 @@ namespace {
                     "                template <typename Type, class IntType, bool IsTWNumber>\r\n"
                     "static bool            InternalStrToUnsigned   (const Type * pStrVal, IntType * pOutInt, TUInt64 * pOutMantissa = nullptr) noexcept;\r\n"
                     "};",
+                    Style);
+
+        verifyFormat("if (inserted_wip_pointer) {\r\n"
+                    "\r\n"
+                    "    Type::template CreateElem<Type, TWCParms, pIsSafe> (pElemParms, pID);\r\n"
+                    "\r\n"
+                    "    if (!newelem)\r\n"
+                    "        return nullptr;\r\n"
+                    "\r\n"
+                    "    rc = newelem->template InternalSetInContainer<false, true, pIsSafe> (this, pHeldElems, pSyncType, pCanAcquireOperationalHold, pOperationalHoldType);\r\n"
+                    "\r\n"
+                    "    if (!rc) {\r\n"
+                    "\r\n"
+                    "        Type::template DestroyElem<Type, pIsSafe> (newelem);\r\n"
+                    "\r\n"
+                    "        return nullptr;\r\n"
+                    "    }\r\n"
+                    "}",
+                    "if (inserted_wip_pointer) {\r\n"
+                    "\r\n"
+                    "    Type::template CreateElem<Type, TWCParms, pIsSafe> (pElemParms, pID);\r\n"
+                    "\r\n"
+                    "    if (!newelem)\r\n"
+                    "        return nullptr;\r\n"
+                    "\r\n"
+                    "    rc = newelem->template InternalSetInContainer<false, true, pIsSafe> (this, pHeldElems, pSyncType, pCanAcquireOperationalHold, pOperationalHoldType);\r\n"
+                    "\r\n"
+                    "    if (!rc) {\r\n"
+                    "\r\n"
+                    "        Type::template DestroyElem<Type, pIsSafe> (newelem);\r\n"
+                    "\r\n"
+                    "        return nullptr;\r\n"
+                    "    }\r\n"
+                    "}",
                     Style);
     }
 

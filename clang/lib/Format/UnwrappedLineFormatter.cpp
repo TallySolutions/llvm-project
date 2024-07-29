@@ -1628,14 +1628,14 @@ static auto computeNewlines(const AnnotatedLine &Line,
   if (PreviousLine &&
       PreviousLine->First->isOneOf(tok::kw_if, tok::kw_do, tok::kw_for,
                                    tok::kw_while) &&
-      PreviousLine->Last->is(tok::l_brace) && RootToken.NewlinesBefore == 1) {
-    ++Newlines;
+      PreviousLine->Last->is(tok::l_brace)) {
+      Newlines = 2;
   }
 
   // TALLY: Add extra new line at the beginning of an else-block or else-if block
   bool isElseBlock = false;
   if (PreviousLine && PreviousLine->Last->is(tok::l_brace)) {
-    if (PreviousLine->First->is(tok::kw_else) && PreviousLine->First->Next->is(tok::l_brace)) {
+    if (PreviousLine->First->is(tok::kw_else)) {
       isElseBlock = true;
     } else if (PreviousLine->First->is(tok::r_brace)) {
       const FormatToken *MyNext = PreviousLine->First->getNextNonComment();
@@ -1644,8 +1644,8 @@ static auto computeNewlines(const AnnotatedLine &Line,
     }
   }
 
-  if (isElseBlock && RootToken.NewlinesBefore == 1)
-    ++Newlines;
+  if (isElseBlock)
+    Newlines = 2;
 
   // TALLY: Add extra new line at the end of a double-indented block
   if (PreviousLine && PreviousLine->IsDoubleIndented &&

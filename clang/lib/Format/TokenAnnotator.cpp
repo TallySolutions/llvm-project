@@ -4330,6 +4330,8 @@ namespace {
             */
 
             while (Next and Next->is(tok::coloncolon)) {
+                if (Next->Next->is(tok::kw_template))
+                    break;
                 Next = Next->Next->Next;
             }
 
