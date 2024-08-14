@@ -1348,7 +1348,7 @@ void WhitespaceManager::columnarizeDeclarationSpecifierTokens() {
             MyLine->LastSpecifierTabs += 2;
             MaxSpecifierTabs = MaxSpecifierTabs < MyLine->LastSpecifierTabs ? MyLine->LastSpecifierTabs : MaxSpecifierTabs;
         }
-        else if (MyTok->isDeclarationSpecifier()) {
+        else if (MyTok->isDeclarationSpecifier() || MyTok->TokenText=="TWVOLATILE") {
 
             if (PrevTok && PrevTok->isDeclSpecStaticOrVirtual()) {
                 Changes[i].Spaces = MyLine->LastSpecifierPadding;
@@ -1428,6 +1428,10 @@ void WhitespaceManager::columnarizeDeclarationSpecifierTokens() {
                     MyLine->LastSpecifierPadding = toPad - (7 + interimSize);
                     MyLine->LastSpecifierTabs += (toPad / 4);
                 }
+            }
+            else if (MyTok->TokenText=="TWVOLATILE") {
+                MyLine->LastSpecifierPadding = 2;
+                MyLine->LastSpecifierTabs += 3;
             }
             MaxSpecifierTabs = MaxSpecifierTabs < MyLine->LastSpecifierTabs ? MyLine->LastSpecifierTabs : MaxSpecifierTabs;
         }

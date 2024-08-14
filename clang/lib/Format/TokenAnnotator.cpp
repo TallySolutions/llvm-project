@@ -4297,7 +4297,7 @@ namespace {
             */
 
             if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->is(tok::amp) || Next->is(tok::kw_struct) ||
-                Next->TokenText == "CALLBACK" || Next->TokenText == "STDMETHODCALLTYPE") {
+                Next->TokenText == "CALLBACK" || Next->TokenText == "STDMETHODCALLTYPE" || Next->TokenText == "TWVOLATILE") {
                 if (Next->is(tok::kw_const))
                     has_const = true;
                 Next = Next->Next;
@@ -4399,7 +4399,7 @@ namespace {
             */
 
             if (Next->isDeclarationSpecifier() || Next->is(tok::star) || Next->is(tok::amp) || Next->is(tok::kw_struct) ||
-                Next->TokenText == "CALLBACK" || Next->TokenText == "STDMETHODCALLTYPE") {
+                Next->TokenText == "CALLBACK" || Next->TokenText == "STDMETHODCALLTYPE" || Next->TokenText == "TWVOLATILE") {
                 if (j == 1)
                     Next->IsInterimBeforeName = true;
                 Next = Next->Next;
