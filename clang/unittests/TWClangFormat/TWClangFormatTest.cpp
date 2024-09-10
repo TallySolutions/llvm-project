@@ -779,6 +779,51 @@ namespace {
                     Style);
     }
 
+    TEST_F(TWClangFormatTest, DeclarationSpecifierAlignmentInClassOrStructScope) {
+
+        FormatStyle Style = getTWStyle();
+
+      verifyFormat(
+          "struct tStringScratch {\r\n"
+          "\r\n"
+          "        volatile    eTWIOStatus                                 "
+          "vIORunningState;\r\n"
+          "        mutable     tStringScratch<BaseClassType> *             "
+          "rScratch;\r\n"
+          "static              TWDevSyncFlag                               "
+          "sTraceCollectorSyncFlag;\r\n"
+          "                    TWInternalContentBuffer<BaseClassType> *    "
+          "rScratchContent;        // scratch ptr - encoding uses in case of "
+          "string, serialized content ptr in case of Object\r\n"
+          "static  constexpr   TUInt8                                      "
+          "sNumLinesConciseMode = 20;\r\n"
+          "static  volatile    TUInt64                                     "
+          "sAssignedThreadId;\r\n"
+          "        TWVOLATILE  eTWSocketOpenState::Enum                    "
+          "vOpenState;\r\n"
+          "};",
+          "struct tStringScratch {\r\n"
+          "\r\n"
+          "    volatile    eTWIOStatus                                 "
+          "vIORunningState;\r\n"
+          "    mutable     tStringScratch<BaseClassType> *             "
+          "rScratch;\r\n"
+          "static              TWDevSyncFlag                               "
+          "sTraceCollectorSyncFlag;\r\n"
+          "                    TWInternalContentBuffer<BaseClassType> *    "
+          "rScratchContent;        // scratch ptr - encoding uses in case of "
+          "string, serialized content ptr in case of Object\r\n"
+          "static  constexpr   TUInt8                                      "
+          "sNumLinesConciseMode = 20;\r\n"
+          "static  volatile    TUInt64                                     "
+          "sAssignedThreadId;\r\n"
+          "TWVOLATILE  eTWSocketOpenState::Enum                    "
+          "vOpenState;\r\n"
+          "};",
+          Style);
+
+    }
+
     TEST_F(TWClangFormatTest, ConstAlignmentInClassScope) {
     
     FormatStyle Style = getTWStyle();

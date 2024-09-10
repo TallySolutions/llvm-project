@@ -4780,6 +4780,11 @@ namespace {
                 Line.IsDoubleIndented = true;
                 ++Line.Level;
             }
+
+            if (MyToken->IsStructScope && MyToken->LbraceCount - MyToken->RbraceCount == 1) {
+                Line.IsDoubleIndented = true;
+                ++Line.Level;
+            }
         }
 
         Line.First->TotalLength =
