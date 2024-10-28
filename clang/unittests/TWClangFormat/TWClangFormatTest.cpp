@@ -1112,6 +1112,46 @@ namespace {
                     "};",
                     
                     Style);
+
+        verifyFormat("class TWCommIOStateChangeNotify {\r\n"
+"\r\n"
+"                                    TWCommIOStateChangeNotify   () noexcept;\r\n"
+"\r\n"
+"                    template <typename Func, typename...Args>\r\n"
+"                    [[nodiscard]]\r\n"
+"                                    TWCommIOStateChangeNotify   (Func && pFunc, Args &&... pParms) noexcept;\r\n"
+"\r\n"
+"\r\n"
+"                    [[nodiscard]]\r\n"
+"                                    TWCommIOStateChangeNotify   () noexcept;\r\n"
+"\r\n"
+"static  volatile    TUInt64         sAssignedThreadId;\r\n"
+"static  TWVOLATILE  TUInt64         sTraceMgrInstanceCount;\r\n"
+"static              TWDevSyncFlag   sTraceCollectorSyncFlag;\r\n"
+"};",
+            "class TWCommIOStateChangeNotify {\r\n"
+            "\r\n"
+            "    TWCommIOStateChangeNotify   () noexcept;\r\n"
+            "\r\n"
+            "    template <typename Func, typename...Args>\r\n"
+            "                    [[nodiscard]]\r\n"
+            "    TWCommIOStateChangeNotify   (Func &&pFunc, Args &&... pParms) "
+            "noexcept;\r\n"
+            "    \r\n"
+            "\r\n"
+            "    [[nodiscard]]\r\n"
+            "                                    TWCommIOStateChangeNotify   "
+            "() noexcept;\r\n"
+            "\r\n"
+            "static  volatile    TUInt64                     "
+            "sAssignedThreadId;\r\n"
+            "static  TWVOLATILE  TUInt64                     "
+            "sTraceMgrInstanceCount;\r\n"
+            "static              TWDevSyncFlag               "
+            "sTraceCollectorSyncFlag;\r\n"
+            "};",
+
+            Style);
     }
 
     TEST_F(TWClangFormatTest, MaybeUnused) {

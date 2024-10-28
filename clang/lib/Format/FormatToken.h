@@ -1040,7 +1040,7 @@ public:
   bool isConstructor() const {
       const FormatToken* MyPrev = getPreviousNonComment();
 
-      if (MyPrev && !MyPrev->isOneOf (tok::kw_constexpr, tok::greater)) {
+      if (MyPrev && !MyPrev->isOneOf (tok::kw_constexpr, tok::greater, tok::r_square)) {
           return false;
       }
 
