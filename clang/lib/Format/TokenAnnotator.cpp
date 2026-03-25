@@ -4759,7 +4759,7 @@ namespace {
 
         if (MyToken && !IsReturnLine) {
             for (MyToken = Line.First; MyToken != nullptr && IsDoubleIndentNeeded == false; MyToken = MyToken->Next) {
-                if ((MyToken->IsVariableNameWithDatatype and MyToken->Previous->isNot(tok::amp)) || MyToken->isTallyTrace()) {
+                if (MyToken->IsVariableNameWithDatatype || MyToken->isTallyTrace()) {
                     IsDoubleIndentNeeded = true;
                     break;
                 }
